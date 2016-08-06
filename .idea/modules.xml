@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/songspot.iml" filepath="$PROJECT_DIR$/.idea/modules/songspot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/songspot_integrationTest.iml" filepath="$PROJECT_DIR$/.idea/modules/songspot_integrationTest.iml" group="songspot" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/songspot_main.iml" filepath="$PROJECT_DIR$/.idea/modules/songspot_main.iml" group="songspot" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/songspot_test.iml" filepath="$PROJECT_DIR$/.idea/modules/songspot_test.iml" group="songspot" />
+    </modules>
+  </component>
+</project>
