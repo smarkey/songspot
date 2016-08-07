@@ -183,5 +183,7 @@
     <orderEntry type="library" name="Gradle: com.goldmansachs:gs-collections-api:5.1.0" level="project" />
     <orderEntry type="library" name="Gradle: net.minidev:asm:1.0.2" level="project" />
     <orderEntry type="library" name="Gradle: asm:asm:3.3.1" level="project" />
+    <orderEntry type="library" name="org.grails:grails-datastore-rest-client:5.0.8.RELEASE" level="project" />
+    <orderEntry type="library" name="joda-time:joda-time:2.0" level="project" />
   </component>
 </module>

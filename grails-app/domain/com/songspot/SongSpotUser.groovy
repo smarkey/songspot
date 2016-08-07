@@ -17,6 +17,7 @@ class SongSpotUser implements Serializable {
 	boolean accountExpired
 	boolean accountLocked
 	boolean passwordExpired
+	SongSpotUserConfig songSpotUserConfig
 
 	Set<SongSpotRole> getAuthorities() {
 		SongSpotUserSongSpotRole.findAllBySongSpotUser(this)*.songSpotRole
@@ -41,6 +42,7 @@ class SongSpotUser implements Serializable {
 	static constraints = {
 		password blank: false, password: true
 		username blank: false, unique: true
+		songSpotUserConfig nullable:true
 	}
 
 	static mapping = {

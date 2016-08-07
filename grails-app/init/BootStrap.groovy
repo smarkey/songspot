@@ -1,5 +1,6 @@
 import com.songspot.SongSpotRole
 import com.songspot.SongSpotUser
+import com.songspot.SongSpotUserConfig
 import com.songspot.SongSpotUserSongSpotRole
 
 class BootStrap {
@@ -23,6 +24,9 @@ class BootStrap {
 
     def createSongSpotUserIfNecessary(Map values, String authority) {
         if(!SongSpotUser.findAllByUsername(values.username)){
+            SongSpotUserConfig songSpotUserConfig = new SongSpotUserConfig([songKickApiKey:"JFeFSSO2cn7uoIIp", songKickUsername:"steven-markey-1"]).save(flush:true)
+            values << [songSpotUserConfig:songSpotUserConfig]
+
             SongSpotUser songSpotUser = new SongSpotUser(values).save()
             SongSpotRole songSpotRole = SongSpotRole.findByAuthority(authority)
             SongSpotUserSongSpotRole.create(songSpotUser, songSpotRole)
