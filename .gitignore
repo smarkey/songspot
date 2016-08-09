@@ -31,3 +31,17 @@
 
 # "temporary" build files
 /target
+
+#intellij files
+*.iml
+*.ipr
+*.iws
+.idea
+
+#gradle and grails
+.gradle
+.asscache
+build
+out
+logs
+classes

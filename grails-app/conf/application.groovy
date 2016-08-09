@@ -19,6 +19,7 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/songSpotUserConfig/**',         access: ['ROLE_ADMIN']],
 	[pattern: '/songKick/**',          			access: ['ROLE_ADMIN']],
 	[pattern: '/spotify/**',          			access: ['ROLE_ADMIN']],
+	[pattern: '/main/**',          				access: ['ROLE_ADMIN']],
 ]
 
 grails.plugin.springsecurity.filterChain.chainMap = [
@@ -28,4 +29,16 @@ grails.plugin.springsecurity.filterChain.chainMap = [
 	[pattern: '/**/images/**',   filters: 'none'],
 	[pattern: '/**/favicon.ico', filters: 'none'],
 	[pattern: '/**',             filters: 'JOINED_FILTERS']
+]
+
+com.songspot = [
+        spotify: [
+				authUrl: "https://accounts.spotify.com/authorize",
+				url: "https://api.spotify.com/v1",
+				clientId: "6cd61f6ef9ed4635bb4342f9b137a374",
+				clientSecret: "c7f7eb3e1db1480abda45610c80c4f9b"
+        ],
+		songkick: [
+				url: "http://api.songkick.com/api/3.0"
+		]
 ]
