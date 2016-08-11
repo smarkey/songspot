@@ -100,7 +100,7 @@ class SpotifyService {
             header "Authorization", "Bearer ${spotifyAccessToken.toString()}"
             header "Content-Type", "application/json"
         }
-        resp.json
+        resp.json.artists.items
     }
 
     def addTrackToPlaylist(trackUris, playlistId) {

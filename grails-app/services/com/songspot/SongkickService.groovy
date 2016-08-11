@@ -17,6 +17,35 @@ class SongkickService {
         String url = "$grailsApplication.config.com.songspot.songkick.url/users/$songKickApiUsername/calendar.json?reason=tracked_artist&apikey=$songKickApiKey"
 
         def resp = rest.get(url)
-        return resp.json
+
+        def data = []
+        resp.json.resultsPage.results.calendarEntry*.event.each { event ->
+            def performances = []
+            event.performance.each { performance ->
+                performances << [
+                        id: performance.id,
+                        name: performance.displayName
+                ]
+            }
+
+            data << [
+                    id: event.id,
+                    performances: [
+                            performances
+                    ],
+                    venue: [
+                            id: event.venue.id,
+                            name: event.venue.displayName
+                    ],
+                    location: event.location,
+                    start: [
+                            datetime: event.start.datetime
+                    ],
+                    url: event.uri,
+                    popularity: event.popularity,
+                    type: event.type
+            ]
+        }
+        return data
     }
 }

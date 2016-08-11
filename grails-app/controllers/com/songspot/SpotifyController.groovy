@@ -5,7 +5,7 @@ class SpotifyController {
     def spotifyService
 
     def authorize() {
-        log.debug("Authenticating with Spotify")
+        log.debug("Redirecting to Spotify Authentication.")
         redirect(url: "$grailsApplication.config.com.songspot.spotify.authUrl?" +
                 "response_type=code&" +
                 "scope=playlist-modify-private&" +
@@ -16,15 +16,16 @@ class SpotifyController {
     }
 
     def callback() {
-        SongSpotUserConfig songSpotUserConfig = utilitiesService.getUserConfig()
-        songSpotUserConfig.spotifyAuthorizationCode = params.code
-        songSpotUserConfig.save()
-        redirect(action:"getToken")
-    }
-
-    def getToken() {
+        log.debug("Authentication complete.")
+        if(params.code) {
+            log.debug("Fetching and storing Authorization Code.")
+            SongSpotUserConfig songSpotUserConfig = utilitiesService.getUserConfig()
+            songSpotUserConfig.spotifyAuthorizationCode = params.code
+            songSpotUserConfig.save()
+        }
+        log.debug("Fetching and storing Access Token.")
         spotifyService.getToken()
-        redirect(action:"createPlaylist", params:[name:"SongSpot Playlist"])
+        render(view:"/index_new")
     }
 
     def createPlaylist() {
@@ -36,7 +37,7 @@ class SpotifyController {
     }
 
     def getArtistsTopTracks() {
-        String artistId = spotifyService.findArtistByName(params.artistName).artists.items.id[0]
+        String artistId = spotifyService.findArtistByName(params.name).id[0]
         render spotifyService.getArtistsTopTracks(artistId)
     }
 
