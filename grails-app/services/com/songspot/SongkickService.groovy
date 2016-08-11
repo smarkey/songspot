@@ -2,6 +2,7 @@ package com.songspot
 
 import grails.plugins.rest.client.RestBuilder
 import grails.transaction.Transactional
+import org.joda.time.DateTime
 
 @Transactional
 class SongkickService {
@@ -9,7 +10,7 @@ class SongkickService {
     def grailsApplication
     static final RestBuilder rest = new RestBuilder()
 
-    def getConcerts() {
+    def getConcerts(Map filters) {
         SongSpotUserConfig songSpotUserConfig = utilitiesService.getUserConfig()
         String songKickApiKey = songSpotUserConfig.getSongKickApiKey()
         String songKickApiUsername = songSpotUserConfig.getSongKickUsername()
@@ -46,6 +47,53 @@ class SongkickService {
                     type: event.type
             ]
         }
-        return data
+
+        return doFilters(data, filters)
+    }
+
+    def doFilters(data, filters) {
+        if(filters.empty) { return data }
+
+        def startDate = filters.dateRestriction.startDate
+        def endDate = filters.dateRestriction.endDate
+        def includeFestivals = filters.festivalRestriction.includeFestivals
+
+        def filteredData = []
+        data.each { concert ->
+            def concertDate = new DateTime(concert.start.datetime)
+            boolean dateCompliant = false
+            boolean typeCompliant = true
+
+            if(concertDate > startDate && concertDate < endDate) {
+                dateCompliant = true
+            }
+
+            if(!includeFestivals && concert.type == "Festival") {
+                typeCompliant = false
+            }
+
+            if(dateCompliant && typeCompliant) {
+                filteredData << concert
+            }
+        }
+
+        return filteredData
+    }
+
+    def formatFilters(Map params) {
+        Map filters = [:]
+
+        if(params.containsKey("startDate") && params.containsKey("endDate")) {
+            filters.dateRestriction = [
+                    startDate: new DateTime(params.startDate),
+                    endDate  : new DateTime(params.endDate),
+            ]
+        }
+
+        filters.festivalRestriction = [
+                includeFestivals: params.includeFestivals == "on" ? true : false
+        ]
+
+        return filters
     }
 }

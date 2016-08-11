@@ -67,7 +67,7 @@ class SpotifyService {
         return resp.json
     }
 
-    def getArtistsTopTracks(String artistId) {
+    def getArtistsTopTracks(String artistId, int numberOftracks = 5) {
         refreshTokenIfNecessary()
 
         SongSpotUserConfig songSpotUserConfig = utilitiesService.getUserConfig()
@@ -79,12 +79,14 @@ class SpotifyService {
         }
 
         def result = []
-        resp.json.tracks.each { track ->
-            result << [
-                    id: track.id,
-                    name: track.name,
-                    uri: track.uri
-            ]
+        resp.json.tracks.eachWithIndex { track, idx ->
+            if(idx < numberOftracks) {
+                result << [
+                        id  : track.id,
+                        name: track.name,
+                        uri : track.uri
+                ]
+            }
         }
         result
     }
