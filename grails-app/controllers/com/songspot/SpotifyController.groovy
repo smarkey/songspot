@@ -25,7 +25,7 @@ class SpotifyController {
         }
         log.debug("Fetching and storing Access Token.")
         spotifyService.getToken()
-        render(view:"/index_new")
+        redirect(controller:"main", action:"index")
     }
 
     def createPlaylist() {

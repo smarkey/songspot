@@ -37,9 +37,10 @@ class SpotifyService {
         songSpotUserConfig.save()
     }
 
-    def refreshTokenIfNecessary(String refreshToken) {
+    def refreshTokenIfNecessary() {
         SongSpotUserConfig songSpotUserConfig = utilitiesService.getUserConfig()
         DateTime refreshTokenExpiry = new DateTime(songSpotUserConfig.spotifyRefreshTokenExpiry)
+        String refreshToken = songSpotUserConfig.getSpotifyRefreshToken()
 
         if(refreshTokenExpiry < DateTime.now()) {
             def resp = rest.post("https://accounts.spotify.com/api/token?grant_type=refresh_token&refresh_token=$refreshToken") {

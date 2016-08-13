@@ -1,7 +1,5 @@
 package com.songspot
 
-import org.joda.time.DateTime
-
 class SongSpotUserConfig {
 
     String songKickApiKey

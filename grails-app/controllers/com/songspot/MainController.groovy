@@ -4,9 +4,8 @@ class MainController {
     def songkickService
     def spotifyService
 
-    def test() {
-        log.debug("Fetching Songkick concerts")
-        render getConcerts()
+    def index() {
+        render(view:"/index")
     }
 
     def addTrackToPlaylistTest() {
@@ -21,24 +20,40 @@ class MainController {
 
         def filters = songkickService.formatFilters(params)
         def artists = songkickService.getConcerts(filters).performances*.name.flatten().unique()
+//        def threadedMethodList = new PromiseList()
 
         artists.each { artist ->
-            def artistId = spotifyService.findArtistByName(artist).id[0]
-            def topTracksUris = spotifyService.getArtistsTopTracks(artistId, params.int("numberOfTracks"))*.uri
-            spotifyService.addTrackToPlaylist(topTracksUris, playlistId)
+            def artistId = spotifyService.findArtistByName(artist).id.first()
+            def numberOfTracks = params.int("numberOfTracks")
+            def topTracks = spotifyService.getArtistsTopTracks(artistId, numberOfTracks)
+            def uris = topTracks*.uri
+
+            spotifyService.addTrackToPlaylist(uris, playlistId)
+
+//            threadedMethodList << task {
+//                spotifyService.addTrackToPlaylist(uris, playlistId)
+//            }
         }
 
-        flash.message = "Created Playlist '$params.name' with Top Tracks for ${artists.size()} artists: ${artists.split()}"
-        render(view:"/index_new")
+//        threadedMethodList.onComplete { List results ->
+//            log.info("Processed ${results.size()} spotify actions")
+//        }.onError { Throwable err ->
+//            log.error("An error occured with spotify: ${err.message}")
+//        }
+
+        flash.message = "Created Playlist '${params.name}' with Top Tracks for ${artists.size()} artists: ${artists.join(", ")}"
+        redirect(action: "index")
     }
 
     def getConcertArtists() {
-        def concertsJson = songkickService.getConcerts()
-        concertsJson.resultsPage.results.calendarEntry*.event.performance.displayName.flatten()
+        def filters = songkickService.formatFilters(params)
+        def concertsJson = songkickService.getConcerts(filters)
+        render (view:"/songKick/list", model:[artists: concertsJson*.performances*.name.unique().flatten()])
     }
 
     def getConcerts() {
-        render songkickService.getConcerts()
+        def filters = songkickService.formatFilters(params)
+        render songkickService.getConcerts(filters)
     }
 
     def getConcertsByDateRange() {

@@ -53,23 +53,30 @@ class SongkickService {
 
     def doFilters(data, filters) {
         if(filters.empty) { return data }
-
-        def startDate = filters.dateRestriction.startDate
-        def endDate = filters.dateRestriction.endDate
-        def includeFestivals = filters.festivalRestriction.includeFestivals
+        def filterByDate = filters.containsKey("dateRestriction")
+        def filterByType = filters.containsKey("festivalRestriction")
 
         def filteredData = []
         data.each { concert ->
             def concertDate = new DateTime(concert.start.datetime)
-            boolean dateCompliant = false
+            boolean dateCompliant = true
             boolean typeCompliant = true
 
-            if(concertDate > startDate && concertDate < endDate) {
-                dateCompliant = true
+            if(filterByDate) {
+                def startDate = filters.dateRestriction.startDate
+                def endDate = filters.dateRestriction.endDate
+
+                if(concertDate < startDate || concertDate > endDate) {
+                    dateCompliant = false
+                }
             }
 
-            if(!includeFestivals && concert.type == "Festival") {
-                typeCompliant = false
+            if(filterByType) {
+                def includeFestivals = filters.festivalRestriction.includeFestivals
+
+                if (!includeFestivals && concert.type == "Festival") {
+                    typeCompliant = false
+                }
             }
 
             if(dateCompliant && typeCompliant) {
