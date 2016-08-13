@@ -55,12 +55,14 @@ class SongkickService {
         if(filters.empty) { return data }
         def filterByDate = filters.containsKey("dateRestriction")
         def filterByType = filters.containsKey("festivalRestriction")
+        def filterByArtist = filters.containsKey("artistRestriction")
 
         def filteredData = []
         data.each { concert ->
             def concertDate = new DateTime(concert.start.datetime)
             boolean dateCompliant = true
             boolean typeCompliant = true
+            boolean artistCompliant = true
 
             if(filterByDate) {
                 def startDate = filters.dateRestriction.startDate
@@ -79,7 +81,17 @@ class SongkickService {
                 }
             }
 
-            if(dateCompliant && typeCompliant) {
+            if(filterByArtist) {
+                artistCompliant = false
+                def filterArtistsList = filters.artistRestriction
+                def concertArtistsList = concert.performances*.name[0]
+
+                if( filterArtistsList.any { concertArtistsList.contains(it) } ) {
+                    artistCompliant = true
+                }
+            }
+
+            if(dateCompliant && typeCompliant && artistCompliant) {
                 filteredData << concert
             }
         }
@@ -100,6 +112,17 @@ class SongkickService {
         filters.festivalRestriction = [
                 includeFestivals: params.includeFestivals == "on" ? true : false
         ]
+
+        if(params.containsKey("artists")) {
+            filters.artistRestriction = []
+            if( !(params.artists instanceof ArrayList) ) {
+                params.artists = [params.artists]
+            }
+
+            params.artists.each {
+                filters.artistRestriction << it
+            }
+        }
 
         return filters
     }

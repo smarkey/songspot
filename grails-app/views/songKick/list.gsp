@@ -4,28 +4,31 @@
 <head>
     <meta name="layout" content="main"/>
     <title>Welcome to SpotKick</title>
-    <asset:javascript src="jquery-2.2.0.min.js"/>
-
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 </head>
 <body>
     <p>${flash.message}</p>
-    <button id="selectAll" type="button" class="btn btn-info">Select All</button>
-    <button id="unselectAll" type="button" class="btn btn-info">Unselect All</button>
-    <g:select name="concerts" multiple="true" from="${artists}"></g:select>
+    <g:form name="addAllConcertArtistsTopTracksToNewPlaylistForm" controller="main" action="addAllConcertArtistsTopTracksToNewPlaylist">
+        <label for="artists" class="control-label">Artists</label>
+        <g:select name="artists" multiple="true" from="${artists}" class="form-control"></g:select>
+        <br/>
+        <button id="selectAll" type="button" class="btn btn-info">Select All</button>
+        <button id="unselectAll" type="button" class="btn btn-info">Unselect All</button>
+        <br/>
+        <br/>
+        <label for="numberOfTracks" class="control-label">Number of Tracks per Artist</label>
+        <g:select name="numberOfTracks" from="${1..20}" value="5" class="form-control"></g:select>
+        <br />
+        <label for="name" class="control-label">Name</label>
+        <g:textField name="name" value="test${DateTime.now()}"></g:textField>
+        <g:submitButton name="addAllConcertArtistsTopTracksToNewPlaylistButton" value="Do it!" class="btn btn-info"></g:submitButton>
+    </g:form>
+
     <script>
         $("#selectAll").on("click", function() {
-            $('#concerts option').prop('selected', true);
+            $('#artists option').prop('selected', true);
         });
         $("#unselectAll").on("click", function() {
-            $('#concerts option').prop('selected', false);
+            $('#artists option').prop('selected', false);
         });
     </script>
 </html>

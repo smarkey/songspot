@@ -8,56 +8,48 @@ class MainController {
         render(view:"/index")
     }
 
-    def addTrackToPlaylistTest() {
-        def artistId = spotifyService.findArtistByName("Aslan").id[0]
-        def topTracksUris = spotifyService.getArtistsTopTracks(artistId)*.uri
-        def playlistId = spotifyService.createPlaylist("AslanPlaylist").id
-        render spotifyService.addTrackToPlaylist(topTracksUris, playlistId)
-    }
-
     def addAllConcertArtistsTopTracksToNewPlaylist() {
+        flash.message = ""
         def playlistId = spotifyService.createPlaylist(params.name).id
 
         def filters = songkickService.formatFilters(params)
         def artists = songkickService.getConcerts(filters).performances*.name.flatten().unique()
-//        def threadedMethodList = new PromiseList()
 
         artists.each { artist ->
-            def artistId = spotifyService.findArtistByName(artist).id.first()
+            def scrubbedArtistName = artist.replaceAll("[-+!.^:,]","")
+            def spotifyArtistSearchResult = spotifyService.findArtistByName(scrubbedArtistName)
+
+            if(spotifyArtistSearchResult.size() < 1) {
+                flash.message << "$artist is not on Spotify"
+                return
+            }
+
+            def artistId = spotifyArtistSearchResult.first().id
             def numberOfTracks = params.int("numberOfTracks")
             def topTracks = spotifyService.getArtistsTopTracks(artistId, numberOfTracks)
             def uris = topTracks*.uri
 
             spotifyService.addTrackToPlaylist(uris, playlistId)
-
-//            threadedMethodList << task {
-//                spotifyService.addTrackToPlaylist(uris, playlistId)
-//            }
         }
 
-//        threadedMethodList.onComplete { List results ->
-//            log.info("Processed ${results.size()} spotify actions")
-//        }.onError { Throwable err ->
-//            log.error("An error occured with spotify: ${err.message}")
-//        }
-
-        flash.message = "Created Playlist '${params.name}' with Top Tracks for ${artists.size()} artists: ${artists.join(", ")}"
+        log.info("Created Playlist '${params.name}' with Top Tracks for ${artists.size()} artists: ${artists.join(", ")}")
         redirect(action: "index")
     }
 
     def getConcertArtists() {
+        log.info("Getting Concert Artists...")
         def filters = songkickService.formatFilters(params)
         def concertsJson = songkickService.getConcerts(filters)
-        render (view:"/songKick/list", model:[artists: concertsJson*.performances*.name.unique().flatten()])
+        def artistNames = concertsJson*.performances*.name.flatten().unique()
+        log.info("Found: $artistNames")
+        render (view:"/songKick/list", model:[artists: artistNames])
     }
 
     def getConcerts() {
+        log.info("Getting Concerts...")
         def filters = songkickService.formatFilters(params)
-        render songkickService.getConcerts(filters)
-    }
-
-    def getConcertsByDateRange() {
-        def filters = songkickService.formatFilters(params)
-        render songkickService.getConcerts(filters)
+        def concerts = songkickService.getConcerts(filters)
+        log.info("Found: ${concerts*.displayName.join(", ")}")
+        render concerts
     }
 }
