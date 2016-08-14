@@ -1,42 +1,42 @@
-import com.songspot.SongSpotRole
-import com.songspot.SongSpotUser
-import com.songspot.SongSpotUserConfig
-import com.songspot.SongSpotUserSongSpotRole
+import com.spotkick.SpotkickUser
+import com.spotkick.SpotkickRole
+import com.spotkick.SpotkickUserConfig
+import com.spotkick.SpotkickUserSpotkickRole
 
 class BootStrap {
 
     def init = { servletContext ->
-        createSongSpotRoleIfNecessary("ROLE_USER")
-        createSongSpotRoleIfNecessary("ROLE_ADMIN")
-        createSongSpotUserIfNecessary([username:"admin", password:"password"], "ROLE_ADMIN")
-        createSongSpotUserIfNecessary([username:"user", password:"password"], "ROLE_USER")
+        createSpotkickRoleIfNecessary("ROLE_USER")
+        createSpotkickRoleIfNecessary("ROLE_ADMIN")
+        createSpotkickUserIfNecessary([username:"admin", password:"password"], "ROLE_ADMIN")
+        createSpotkickUserIfNecessary([username:"user", password:"password"], "ROLE_USER")
     }
     
     def destroy = {
     }
 
-    def createSongSpotRoleIfNecessary(String authority) {
-        if(!SongSpotRole.findByAuthority(authority)){
-            SongSpotRole songSpotRole = new SongSpotRole(authority: authority).save()
-            log.info("SongSpot created: $songSpotRole")
+    def createSpotkickRoleIfNecessary(String authority) {
+        if(!SpotkickRole.findByAuthority(authority)){
+            SpotkickRole spotkickRole = new SpotkickRole(authority: authority).save()
+            log.info("Spotkick created: $spotkickRole")
         }
     }
 
-    def createSongSpotUserIfNecessary(Map values, String authority) {
-        if(!SongSpotUser.findAllByUsername(values.username)){
-            SongSpotUserConfig songSpotUserConfig = new SongSpotUserConfig([songKickApiKey:"JFeFSSO2cn7uoIIp", songKickUsername:"steven-markey-1"]).save(flush:true)
-            values << [songSpotUserConfig:songSpotUserConfig]
+    def createSpotkickUserIfNecessary(Map values, String authority) {
+        if(!SpotkickUser.findAllByUsername(values.username)){
+            SpotkickUserConfig spotkickUserConfig = new SpotkickUserConfig([songkickApiKey:"JFeFSSO2cn7uoIIp", songkickUsername:"steven-markey-1"]).save(flush:true)
+            values << [spotkickUserConfig:spotkickUserConfig]
 
-            SongSpotUser songSpotUser = new SongSpotUser(values).save()
-            SongSpotRole songSpotRole = SongSpotRole.findByAuthority(authority)
-            SongSpotUserSongSpotRole.create(songSpotUser, songSpotRole)
+            SpotkickUser spotkickUser = new SpotkickUser(values).save()
+            SpotkickRole spotkickRole = SpotkickRole.findByAuthority(authority)
+            SpotkickUserSpotkickRole.create(spotkickUser, spotkickRole)
 
-            SongSpotUserSongSpotRole.withSession {
+            SpotkickUserSpotkickRole.withSession {
                 it.flush()
                 it.clear()
             }
 
-            log.info("SongSpotUser created: $songSpotUser with SongSpotRole: $songSpotRole")
+            log.info("SpotkickUser created: $spotkickUser with SpotkickRole: $spotkickRole")
         }
     }
 }

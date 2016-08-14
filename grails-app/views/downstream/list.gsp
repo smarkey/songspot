@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta name="layout" content="main"/>
-    <title>Welcome to SpotKick</title>
+    <title>Welcome to Spotkick</title>
 </head>
 <body>
     <p>${flash.message}</p>

@@ -1,4 +1,4 @@
-package com.songspot
+package com.spotkick
 
 import grails.transaction.Transactional
 
@@ -7,7 +7,7 @@ class UtilitiesService {
     def springSecurityService
 
     def getUserConfig() {
-        SongSpotUser songSpotUser = springSecurityService.getCurrentUser()
-        songSpotUser.getSongSpotUserConfig()
+        SpotkickUser spotkickUser = springSecurityService.getCurrentUser()
+        spotkickUser.getSpotkickUserConfig()
     }
 }

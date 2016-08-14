@@ -1,13 +1,14 @@
-package com.songspot
+package com.spotkick
 
+import com.spotkick.thirdparty.UpstreamController
 import grails.test.mixin.TestFor
 import spock.lang.Specification
 
 /**
  * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
  */
-@TestFor(SpotifyController)
-class SpotifyControllerSpec extends Specification {
+@TestFor(UpstreamController)
+class UpstreamControllerSpec extends Specification {
 
     def setup() {
     }

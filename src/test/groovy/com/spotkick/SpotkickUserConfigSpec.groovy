@@ -1,13 +1,13 @@
-package com.songspot
+package com.spotkick
 
 import grails.test.mixin.TestFor
 import spock.lang.Specification
 
 /**
- * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
+ * See the API for {@link grails.test.mixin.domain.DomainClassUnitTestMixin} for usage instructions
  */
-@TestFor(SongKickController)
-class SongKickControllerSpec extends Specification {
+@TestFor(SpotkickUserConfig)
+class SpotkickUserConfigSpec extends Specification {
 
     def setup() {
     }

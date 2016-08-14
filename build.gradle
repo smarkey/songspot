@@ -14,7 +14,7 @@ buildscript {
 }
 
 version "0.1"
-group "songspot"
+group "spotkick"
 
 apply plugin:"eclipse"
 apply plugin:"idea"

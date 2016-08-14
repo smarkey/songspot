@@ -1,7 +1,7 @@
 // Added by the Spring Security Core plugin:
-grails.plugin.springsecurity.userLookup.userDomainClassName = 'com.songspot.SongSpotUser'
-grails.plugin.springsecurity.userLookup.authorityJoinClassName = 'com.songspot.SongSpotUserSongSpotRole'
-grails.plugin.springsecurity.authority.className = 'com.songspot.SongSpotRole'
+grails.plugin.springsecurity.userLookup.userDomainClassName = 'com.spotkick.SpotkickUser'
+grails.plugin.springsecurity.userLookup.authorityJoinClassName = 'com.spotkick.SpotkickUserSpotkickRole'
+grails.plugin.springsecurity.authority.className = 'com.spotkick.SpotkickRole'
 grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/',               				access: ['permitAll']],
 	[pattern: '/error',          				access: ['permitAll']],
@@ -13,9 +13,9 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/**/css/**',      				access: ['permitAll']],
 	[pattern: '/**/images/**',   				access: ['permitAll']],
 	[pattern: '/**/favicon.ico', 				access: ['permitAll']],
-	[pattern: '/songSpotUserConfig/**',         access: ['ROLE_ADMIN']],
-	[pattern: '/songKick/**',          			access: ['ROLE_ADMIN']],
-	[pattern: '/spotify/**',          			access: ['ROLE_ADMIN']],
+	[pattern: '/spotkickUserConfig/**',         access: ['ROLE_ADMIN']],
+	[pattern: '/downstream/**',          		access: ['ROLE_ADMIN']],
+	[pattern: '/upstream/**',          			access: ['ROLE_ADMIN']],
 	[pattern: '/main/**',          				access: ['ROLE_ADMIN']],
 ]
 
@@ -28,14 +28,24 @@ grails.plugin.springsecurity.filterChain.chainMap = [
 	[pattern: '/**',             filters: 'JOINED_FILTERS']
 ]
 
-com.songspot = [
+com.spotkick = [
         spotify: [
 				authUrl: "https://accounts.spotify.com/authorize",
 				url: "https://api.spotify.com/v1",
 				clientId: "6cd61f6ef9ed4635bb4342f9b137a374",
-				clientSecret: "c7f7eb3e1db1480abda45610c80c4f9b"
+				clientSecret: "c7f7eb3e1db1480abda45610c80c4f9b",
+                callback: "http%3A%2F%2Flocalhost%3A8080%2Fupstream%2Fcallback"
         ],
 		songkick: [
-				url: "http://api.songkick.com/api/3.0"
+				url: "http://api.songkick.com/api/3.0",
+				areas: [
+						"London UK",
+						"Birmingham UK",
+						"Liverpool UK",
+						"Edinburgh UK",
+						"Cardiff UK",
+						"Belfast UK",
+						"Dublin Ireland"
+				]
 		]
 ]

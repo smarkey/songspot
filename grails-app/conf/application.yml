@@ -18,15 +18,15 @@ environments:
     development:
         dataSource:
             dbCreate: create-drop
-            url: jdbc:mysql://localhost:3306/songspot
+            url: jdbc:mysql://localhost:3306/spotkick
     test:
         dataSource:
             dbCreate: create-drop
-            url: jdbc:mysql://localhost:3306/songspot
+            url: jdbc:mysql://localhost:3306/spotkick
     production:
         dataSource:
             dbCreate: update
-            url: jdbc:mysql://localhost:3306/songspot
+            url: jdbc:mysql://localhost:3306/spotkick
             properties:
                 jmxEnabled: true
                 initialSize: 5
@@ -51,7 +51,7 @@ environments:
 grails:
     profile: web
     codegen:
-        defaultPackage: com.songspot
+        defaultPackage: com.spotkick
     spring:
         transactionManagement:
             proxies: false

@@ -1,26 +1,38 @@
-package com.songspot
+package com.spotkick.thirdparty
 
+import com.spotkick.SpotkickUserConfig
 import grails.plugins.rest.client.RestBuilder
 import grails.transaction.Transactional
 import org.joda.time.DateTime
 
 @Transactional
-class SongkickService {
+class DownstreamService {
     def utilitiesService
     def grailsApplication
     static final RestBuilder rest = new RestBuilder()
 
     def getConcerts(Map filters) {
-        SongSpotUserConfig songSpotUserConfig = utilitiesService.getUserConfig()
-        String songKickApiKey = songSpotUserConfig.getSongKickApiKey()
-        String songKickApiUsername = songSpotUserConfig.getSongKickUsername()
+        SpotkickUserConfig spotkickUserConfig = utilitiesService.getUserConfig()
+        String songkickApiKey = spotkickUserConfig.getSongkickApiKey()
+        String songkickApiUsername = spotkickUserConfig.getSongkickUsername()
+        def results = null
 
-        String url = "$grailsApplication.config.com.songspot.songkick.url/users/$songKickApiUsername/calendar.json?reason=tracked_artist&apikey=$songKickApiKey"
-
-        def resp = rest.get(url)
+        if(filters.containsKey("areaRestriction")) {
+            String locationQuery = URLEncoder.encode(filters.areaRestriction)
+            String locationUrl = "http://api.songkick.com/api/3.0/search/locations.json?query=$locationQuery&apikey=$songkickApiKey"
+            def locationResp = rest.get(locationUrl)
+            String metroAreaId = locationResp.json.resultsPage.results.location.first().metroArea.id
+            String metroUrl = "http://api.songkick.com/api/3.0/metro_areas/$metroAreaId/calendar.json?apikey=$songkickApiKey"
+            def metroResp = rest.get(metroUrl)
+            results = metroResp.json.resultsPage.results.event
+        } else {
+            String url = "$grailsApplication.config.com.spotkick.songkick.url/users/$songkickApiUsername/calendar.json?reason=tracked_artist&apikey=$songkickApiKey"
+            def resp = rest.get(url)
+            results = resp.json.resultsPage.results.calendarEntry*.event
+        }
 
         def data = []
-        resp.json.resultsPage.results.calendarEntry*.event.each { event ->
+        results.each { event ->
             def performances = []
             event.performance.each { performance ->
                 performances << [
@@ -122,6 +134,10 @@ class SongkickService {
             params.artists.each {
                 filters.artistRestriction << it
             }
+        }
+
+        if(params.containsKey("area")) {
+            filters.areaRestriction = params.area
         }
 
         return filters

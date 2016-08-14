@@ -1,11 +1,11 @@
-package com.songspot
+package com.spotkick
 
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
 @EqualsAndHashCode(includes='username')
 @ToString(includes='username', includeNames=true, includePackage=false)
-class SongSpotUser implements Serializable {
+class SpotkickUser implements Serializable {
 
 	private static final long serialVersionUID = 1
 
@@ -17,10 +17,10 @@ class SongSpotUser implements Serializable {
 	boolean accountExpired
 	boolean accountLocked
 	boolean passwordExpired
-	SongSpotUserConfig songSpotUserConfig
+	SpotkickUserConfig spotkickUserConfig
 
-	Set<SongSpotRole> getAuthorities() {
-		SongSpotUserSongSpotRole.findAllBySongSpotUser(this)*.songSpotRole
+	Set<SpotkickRole> getAuthorities() {
+		SpotkickUserSpotkickRole.findAllBySpotkickUser(this)*.spotkickRole
 	}
 
 	def beforeInsert() {
@@ -42,7 +42,7 @@ class SongSpotUser implements Serializable {
 	static constraints = {
 		password blank: false, password: true
 		username blank: false, unique: true
-		songSpotUserConfig nullable:true
+		spotkickUserConfig nullable:true
 	}
 
 	static mapping = {

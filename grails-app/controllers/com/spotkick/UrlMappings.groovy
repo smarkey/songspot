@@ -1,4 +1,4 @@
-package songspot
+package com.spotkick
 
 class UrlMappings {
 
@@ -9,7 +9,7 @@ class UrlMappings {
             }
         }
 
-        "/"(controller:"spotify", action:"authorize")
+        "/"(controller:"upstream", action:"authorize")
         "500"(view:'/error')
         "404"(view:'/notFound')
     }

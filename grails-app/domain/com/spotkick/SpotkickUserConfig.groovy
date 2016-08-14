@@ -1,9 +1,9 @@
-package com.songspot
+package com.spotkick
 
-class SongSpotUserConfig {
+class SpotkickUserConfig {
 
-    String songKickApiKey
-    String songKickUsername
+    String songkickApiKey
+    String songkickUsername
     String spotifyAuthorizationCode
     String spotifyAccessToken
     String spotifyRefreshToken
@@ -11,8 +11,8 @@ class SongSpotUserConfig {
     String spotifyUserId
 
     static constraints = {
-        songKickApiKey nullable:true
-        songKickUsername nullable:true
+        songkickApiKey nullable:true
+        songkickUsername nullable:true
         spotifyAuthorizationCode nullable:true
         spotifyAccessToken nullable:true
         spotifyRefreshToken nullable:true
