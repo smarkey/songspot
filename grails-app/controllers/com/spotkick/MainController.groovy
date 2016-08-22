@@ -10,10 +10,10 @@ class MainController {
 
     def addAllConcertArtistsTopTracksToNewPlaylist() {
         flash.message = ""
-        def playlistId = upstreamService.createPlaylist(params.name).id
-
+        def playlistJsonResponse = upstreamService.createPlaylist(params.name)
         def filters = downstreamService.formatFilters(params)
         def artists = downstreamService.getConcerts(filters).performances*.name.flatten().unique()
+        def resultJson = null
 
         artists.each { artist ->
             def scrubbedArtistName = artist.replaceAll("[-+!.^:,]","")
@@ -29,11 +29,11 @@ class MainController {
             def topTracks = upstreamService.getArtistsTopTracks(artistId, numberOfTracks)
             def uris = topTracks*.uri
 
-            upstreamService.addTrackToPlaylist(uris, playlistId)
+            resultJson = upstreamService.addTrackToPlaylist(uris, playlistJsonResponse?.id)
         }
 
         log.info("Created Playlist '${params.name}' with Top Tracks for ${artists.size()} artists: ${artists.join(", ")}")
-        redirect(action: "index")
+        render (view:"/downstream/playlistPreview", model:[spotifyPlaylistUri:playlistJsonResponse?.uri])
     }
 
     def getConcertArtists() {

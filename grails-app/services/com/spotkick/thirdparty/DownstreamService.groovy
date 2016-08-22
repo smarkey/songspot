@@ -4,6 +4,8 @@ import com.spotkick.SpotkickUserConfig
 import grails.plugins.rest.client.RestBuilder
 import grails.transaction.Transactional
 import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 
 @Transactional
 class DownstreamService {
@@ -113,11 +115,12 @@ class DownstreamService {
 
     def formatFilters(Map params) {
         Map filters = [:]
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("dd/MM/yyyy")
 
         if(params.containsKey("startDate") && params.containsKey("endDate")) {
             filters.dateRestriction = [
-                    startDate: new DateTime(params.startDate),
-                    endDate  : new DateTime(params.endDate),
+                    startDate: new DateTime(dtf.parseDateTime(params.startDate)),
+                    endDate  : new DateTime(dtf.parseDateTime(params.endDate)),
             ]
         }
 

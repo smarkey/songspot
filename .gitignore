@@ -45,3 +45,4 @@ build
 out
 logs
 classes
+/hs_err_pid11104.log
