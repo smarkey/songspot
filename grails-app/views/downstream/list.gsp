@@ -19,8 +19,10 @@
         <g:select name="numberOfTracks" from="${1..20}" value="5" class="form-control"></g:select>
         <br />
         <label for="name" class="control-label">Name</label>
-        <g:textField name="name" value="test${DateTime.now()}"></g:textField>
+        <g:textField name="name" value="test${DateTime.now()}" class="form-control"></g:textField>
+        <br/>
         <g:submitButton name="addAllConcertArtistsTopTracksToNewPlaylistButton" value="Do it!" class="btn btn-info"></g:submitButton>
+        <br/>
     </g:form>
 
     <script>

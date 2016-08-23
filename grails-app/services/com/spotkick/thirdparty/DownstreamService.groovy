@@ -54,7 +54,7 @@ class DownstreamService {
                     ],
                     location: event.location,
                     start: [
-                            datetime: event.start.datetime
+                            date: event.start.date
                     ],
                     url: event.uri,
                     popularity: event.popularity,
@@ -72,15 +72,21 @@ class DownstreamService {
         def filterByArtist = filters.containsKey("artistRestriction")
 
         def filteredData = []
+
         data.each { concert ->
-            def concertDate = new DateTime(concert.start.datetime)
             boolean dateCompliant = true
             boolean typeCompliant = true
             boolean artistCompliant = true
 
             if(filterByDate) {
+                def concertDate = concert.start.date ? new DateTime(concert.start.date) : null
                 def startDate = filters.dateRestriction.startDate
                 def endDate = filters.dateRestriction.endDate
+
+                if(!concertDate) {
+                    log.error("null date for this event: ${concert.url}")
+                    return filteredData
+                }
 
                 if(concertDate < startDate || concertDate > endDate) {
                     dateCompliant = false
