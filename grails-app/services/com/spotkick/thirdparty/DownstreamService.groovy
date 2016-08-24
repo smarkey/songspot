@@ -13,27 +13,62 @@ class DownstreamService {
     def grailsApplication
     static final RestBuilder rest = new RestBuilder()
 
-    def getConcerts(Map filters) {
-        SpotkickUserConfig spotkickUserConfig = utilitiesService.getUserConfig()
-        String songkickApiKey = spotkickUserConfig.getSongkickApiKey()
-        String songkickApiUsername = spotkickUserConfig.getSongkickUsername()
+    def getConcerts(Map filters, int page=1) {
+        def resp = null
         def results = null
 
         if(filters.containsKey("areaRestriction")) {
-            String locationQuery = URLEncoder.encode(filters.areaRestriction)
-            String locationUrl = "http://api.songkick.com/api/3.0/search/locations.json?query=$locationQuery&apikey=$songkickApiKey"
-            def locationResp = rest.get(locationUrl)
-            String metroAreaId = locationResp.json.resultsPage.results.location.first().metroArea.id
-            String metroUrl = "http://api.songkick.com/api/3.0/metro_areas/$metroAreaId/calendar.json?apikey=$songkickApiKey"
-            def metroResp = rest.get(metroUrl)
-            results = metroResp.json.resultsPage.results.event
+            String metroUrl = getMetroEventsUrl(filters.areaRestriction, filters, page)
+            resp = rest.get(metroUrl)
+            results = resp.json.resultsPage.results.event
         } else {
-            String url = "$grailsApplication.config.com.spotkick.songkick.url/users/$songkickApiUsername/calendar.json?reason=tracked_artist&apikey=$songkickApiKey"
-            def resp = rest.get(url)
+            String userUrl = getUserEventsUrl(page)
+            resp = rest.get(userUrl)
             results = resp.json.resultsPage.results.calendarEntry*.event
         }
 
-        def data = []
+        def formattedConcerts = formatConcertsData(results)
+        return doFilters(formattedConcerts, filters)
+    }
+
+    def getMetroEventsUrl(String locationQuery, filters, page=1) {
+        String encodedLocationQuery = URLEncoder.encode(locationQuery)
+        SpotkickUserConfig spotkickUserConfig = utilitiesService.getUserConfig()
+        String songkickApiKey = spotkickUserConfig.getSongkickApiKey()
+
+        String locationUrl = "$grailsApplication.config.com.spotkick.songkick.url" +
+                "/search/locations.json?" +
+                "query=$encodedLocationQuery&" +
+                "apikey=$songkickApiKey"
+
+        def locationResp = rest.get(locationUrl)
+
+        String metroAreaId = locationResp.json.resultsPage.results.location.first().metroArea.id
+
+        DateTimeFormatter dtf = DateTimeFormat.forPattern('yyyy-MM-dd')
+        "$grailsApplication.config.com.spotkick.songkick.url" +
+                "/events.json?" +
+                "apikey=$songkickApiKey&" +
+                "location=sk:$metroAreaId&" +
+                "min_date=${dtf.print(filters.dateRestriction.startDate)}&" +
+                "max_date=${dtf.print(filters.dateRestriction.endDate)}&" +
+                "page=$page"
+    }
+
+    def getUserEventsUrl(page) {
+        SpotkickUserConfig spotkickUserConfig = utilitiesService.getUserConfig()
+        String songkickApiKey = spotkickUserConfig.getSongkickApiKey()
+        String songkickApiUsername = spotkickUserConfig.getSongkickUsername()
+
+        "$grailsApplication.config.com.spotkick.songkick.url" +
+                "/users/$songkickApiUsername/calendar.json?" +
+                "reason=tracked_artist&" +
+                "apikey=$songkickApiKey&" +
+                "page=$page"
+    }
+
+    def formatConcertsData(results) {
+        def data=[]
         results.each { event ->
             def performances = []
             event.performance.each { performance ->
@@ -62,7 +97,7 @@ class DownstreamService {
             ]
         }
 
-        return doFilters(data, filters)
+        data
     }
 
     def doFilters(data, filters) {
@@ -102,12 +137,11 @@ class DownstreamService {
             }
 
             if(filterByArtist) {
-                artistCompliant = false
                 def filterArtistsList = filters.artistRestriction
                 def concertArtistsList = concert.performances*.name[0]
 
-                if( filterArtistsList.any { concertArtistsList.contains(it) } ) {
-                    artistCompliant = true
+                if( !filterArtistsList.any { concertArtistsList.contains(it) } ) {
+                    artistCompliant = false
                 }
             }
 
@@ -137,7 +171,7 @@ class DownstreamService {
         if(params.containsKey("artists")) {
             filters.artistRestriction = []
             if( !(params.artists instanceof ArrayList) ) {
-                params.artists = [params.artists]
+                params.artists = [params.artists].flatten()
             }
 
             params.artists.each {
@@ -150,5 +184,13 @@ class DownstreamService {
         }
 
         return filters
+    }
+
+    def generatePlaylistName(filters) {
+        DateTime startDate = filters.dateRestriction.startDate
+        DateTime endDate = filters.dateRestriction.endDate
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("dd/MM/yy")
+
+        "Spotkick Gigs ${dtf.print(startDate)}-${dtf.print(endDate)}"
     }
 }

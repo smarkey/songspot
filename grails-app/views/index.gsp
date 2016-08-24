@@ -18,8 +18,8 @@
     <div class="row">
         <g:form name="getConcertArtistsForm" controller="main" action="getConcertArtists">
             <div col="col-sm-12 col-lg-3">
+                <label for="startDate" class="control-label">From</label>
                 <div class="form-group">
-                    <label for="startDate" class="control-label">Between</label>
                     <div class="input-group date">
                         <input id="startDate" name="startDate" type="text" class="form-control" value="${now.toString(dateFormat)}">
                         <div class="input-group-addon">
@@ -29,8 +29,8 @@
                 </div>
             </div>
             <div col="col-sm-12 col-lg-3">
+                <label for="endDate" class="control-label">to</label>
                 <div class="form-group">
-                    <label for="endDate" class="control-label">And</label>
                     <div class="input-group date">
                         <input id="endDate" name="endDate" type="text" class="form-control" value="${now.plusMonths(1).toString(dateFormat)}">
                         <div class="input-group-addon">
@@ -61,7 +61,11 @@
     <script>
         $(function () {
             $('.date').datepicker({
-                format: 'dd/mm/yyyy'
+                format: 'dd/mm/yyyy',
+            });
+
+            $('.date').on('changeDate', function(){
+                $(this).datepicker('hide');
             });
 
             $("#filterByArea").bootstrapSwitch({

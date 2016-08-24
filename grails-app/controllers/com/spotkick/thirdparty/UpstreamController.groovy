@@ -34,21 +34,4 @@ class UpstreamController {
         upstreamService.getToken()
         redirect(controller:"main", action:"index")
     }
-
-    def createPlaylist() {
-        render upstreamService.createPlaylist(params.name)
-    }
-
-    def findArtistByName() {
-        render upstreamService.findArtistByName(params.name)
-    }
-
-    def getArtistsTopTracks() {
-        String artistId = upstreamService.findArtistByName(params.name).id[0]
-        render upstreamService.getArtistsTopTracks(artistId)
-    }
-
-    def addTrackToPlaylist() {
-        render upstreamService.addTrackToPlaylist(params.topTracksUris, params.playlistId)
-    }
 }
