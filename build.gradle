@@ -57,7 +57,7 @@ dependencies {
     profile "org.grails.profiles:web:3.1.8"
     runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.8.2"
     //runtime "com.h2database:h2"
-    runtime "mysql:mysql-connector-java:5.1.38"
+    runtime "mysql:mysql-connector-java:6.0.3"
     testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails.plugins:geb"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"

@@ -9,24 +9,24 @@ hibernate:
 dataSource:
     pooled: true
     jmxExport: true
-    driverClassName: com.mysql.jdbc.Driver
+    driverClassName: com.mysql.cj.jdbc.Driver
     dialect: org.hibernate.dialect.MySQL5InnoDBDialect
-    username: root
-    password:
+    username: spotkick
+    password: spotkick
 
 environments:
     development:
         dataSource:
             dbCreate: create-drop
-            url: jdbc:mysql://localhost:3306/spotkick
+            url: jdbc:mysql://localhost:3306/spotkick?autoReconnect=true&useSSL=false
     test:
         dataSource:
             dbCreate: create-drop
-            url: jdbc:mysql://localhost:3306/spotkick
+            url: jdbc:mysql://localhost:3306/spotkick?autoReconnect=true&useSSL=false
     production:
         dataSource:
             dbCreate: update
-            url: jdbc:mysql://localhost:3306/spotkick
+            url: jdbc:mysql://localhost:3306/spotkick?autoReconnect=true&useSSL=false
             properties:
                 jmxEnabled: true
                 initialSize: 5
