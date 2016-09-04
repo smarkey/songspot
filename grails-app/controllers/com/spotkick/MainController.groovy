@@ -11,9 +11,8 @@ class MainController {
     }
 
     def addAllConcertArtistsTopTracksToNewPlaylist() {
-        List<String> missingArtists = []
         def filters = downstreamService.formatFilters(params)
-        def artists = downstreamService.getConcerts(filters).performances*.name.flatten().unique()
+        def artists = filters.artistRestriction
         def resultJson = null
 
         if(!artists || artists.size() == 0) {
@@ -24,8 +23,9 @@ class MainController {
 
         def playlistJsonResponse = upstreamService.createPlaylist(params.name)
 
+        List<String> missingArtists = []
         artists.each { artist ->
-            String scrubbedArtistName = artist.replaceAll("[-+!.^:,]","")
+            String scrubbedArtistName = artist.replaceAll("[--+!.^:,]","")
             def spotifyArtistSearchResult = upstreamService.findArtistByName(scrubbedArtistName)
 
             if(spotifyArtistSearchResult.size() == 0) {

@@ -19,16 +19,6 @@
                 <div class="form-group">
                     <label for="artists" class="control-label">Artists</label>
                     <g:select name="artists" multiple="true" from="${artists}" class="form-control"></g:select>
-                    <br/>
-                    <ul class="pagination pagination-sm">
-                        <li><a href="#">1</a></li>
-                        <li><a href="#">2</a></li>
-                        <li><a href="#">3</a></li>
-                        <li><a href="#">4</a></li>
-                        <li><a href="#">5</a></li>
-                    </ul>
-                    <button id="selectAll" type="button" class="btn btn-info">Select All</button>
-                    <button id="unselectAll" type="button" class="btn btn-info">Unselect All</button>
                 </div>
             </div>
             <div col="col-sm-12 col-lg-3">
@@ -52,26 +42,36 @@
     </div>
 
     <script>
-        $("#selectAll").on("click", function() {
-            $('#artists option').prop('selected', true);
-        });
-        $("#unselectAll").on("click", function() {
-            $('#artists option').prop('selected', false);
-        });
+        $(function(){
+            var scrollList = $("#artists").bootstrapDualListbox();
+            var page = 1;
 
-        var selectedArtists = [];
+            $("#bootstrap-duallistbox-nonselected-list_artists").on("scroll", function(e) {
+                var scrollHeight = $(this).prop('scrollHeight');
+                var divHeight = $(this).height();
+                var scrollerEndPoint = scrollHeight - divHeight - 14;
+                var divScrollerTop =  $(this).scrollTop();
 
-        $(".pagination a").on("click", function(e) {
-            $.ajax({
-                url: "/main/ajaxGetConcerts",
-                data: {
-                    page: $(this).text(),
-                    <g:each in="${getConcertArtistsParams}" var="param">
-                        ${param.key}: "${param.value}",
-                    </g:each>
+                console.debug(divScrollerTop, scrollerEndPoint);
+                if(divScrollerTop >= scrollerEndPoint) {
+                    page += 1;
+
+                    $.ajax({
+                        url: "/main/ajaxGetConcerts",
+                        data: {
+                            page: page,
+                            <g:each in="${getConcertArtistsParams}" var="param">
+                            ${param.key}:
+                            "${param.value}",
+                            </g:each>
+                        }
+                    })
+                    .done(function (resp) {
+                        console.debug(resp.artistNames.join("\n"));
+                        scrollList.append(resp.artistNames.join("\n"));
+                        scrollList.bootstrapDualListbox('refresh');
+                    });
                 }
-            }).done(function(resp) {
-                console.debug(resp);
             });
         });
     </script>
