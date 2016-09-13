@@ -1,6 +1,7 @@
 package com.spotkick.thirdparty
 
 import com.spotkick.SpotkickUserConfig
+import grails.util.Environment
 
 class UpstreamController {
     def utilitiesService
@@ -11,7 +12,7 @@ class UpstreamController {
 
         String authUrl = grailsApplication.config.com.spotkick.spotify.authUrl
         String clientId = grailsApplication.config.com.spotkick.spotify.clientId
-        String redirectUri = grailsApplication.config.com.spotkick.spotify.callback
+        String redirectUri = grailsApplication.config.com.spotkick.spotify."${Environment.isDevelopmentMode() ? 'testCallback' : 'liveCallback'}"
 
         redirect(url: "$authUrl?" +
                 "response_type=code&" +

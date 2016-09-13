@@ -34,7 +34,8 @@ com.spotkick = [
 				url: "https://api.spotify.com/v1",
 				clientId: "6cd61f6ef9ed4635bb4342f9b137a374",
 				clientSecret: "c7f7eb3e1db1480abda45610c80c4f9b",
-                callback: "http%3A%2F%2Flocalhost%3A8080%2Fupstream%2Fcallback"
+                testCallback: "http%3A%2F%2Flocalhost%3A8080%2Fupstream%2Fcallback",
+				liveCallback: "http%3A%2F%2Fspotkick%2Estevenmarkey%2Ecom%2Fupstream%2Fcallback"
         ],
 		songkick: [
 				url: "http://api.songkick.com/api/3.0",
@@ -49,3 +50,6 @@ com.spotkick = [
 				]
 		]
 ]
+
+grails.plugin.databasemigration.reports.updateOntart = true
+grails.plugin.databasemigration.updateOnStartFileNames = ['changelog.groovy']

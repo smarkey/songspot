@@ -3,6 +3,7 @@ package com.spotkick.thirdparty
 import com.spotkick.SpotkickUserConfig
 import grails.plugins.rest.client.RestBuilder
 import org.joda.time.DateTime
+import grails.util.Environment
 
 class UpstreamService {
     def utilitiesService
@@ -25,7 +26,7 @@ class UpstreamService {
     def getToken() {
         SpotkickUserConfig spotkickUserConfig = utilitiesService.getUserConfig()
         String spotifyAuthorizationCode = spotkickUserConfig.getSpotifyAuthorizationCode()
-        String redirectUri = grailsApplication.config.com.spotkick.spotify.callback
+        String redirectUri = grailsApplication.config.com.spotkick.spotify."${Environment.isDevelopmentMode() ? 'testCallback' : 'liveCallback'}"
         String clientId = grailsApplication.config.com.spotkick.spotify.clientId
         String clientSecret = grailsApplication.config.com.spotkick.spotify.clientSecret
 

@@ -19,4 +19,8 @@ class SpotkickUserConfig {
         spotifyRefreshTokenExpiry nullable:true
         spotifyUserId nullable:true
     }
+
+    static mapping = {
+        spotifyAuthorizationCode sqlType:"text"
+    }
 }

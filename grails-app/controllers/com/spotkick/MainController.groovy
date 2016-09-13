@@ -25,7 +25,7 @@ class MainController {
 
         List<String> missingArtists = []
         artists.each { artist ->
-            String scrubbedArtistName = artist.replaceAll("[--+!.^:,]","")
+            String scrubbedArtistName = artist.replaceAll("[-+!.^:,]","")
             def spotifyArtistSearchResult = upstreamService.findArtistByName(scrubbedArtistName)
 
             if(spotifyArtistSearchResult.size() == 0) {
