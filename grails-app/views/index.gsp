@@ -9,64 +9,82 @@
 </head>
 <body>
     <div class="row">
+        <g:if test="${flash.message}">
         <div col="col-sm-12 col-lg-3">
             <div class="form-group">
                 <p>${flash.message}</p>
             </div>
         </div>
+        </g:if>
     </div>
     <div class="row">
+        <div class="col-sm-12 col-lg-3 center">
         <g:form name="getConcertArtistsForm" controller="main" action="getConcertArtists">
+            <div class="row">
             <div col="col-sm-12 col-lg-3">
-                <label for="startDate" class="control-label">From</label>
-                <div class="form-group">
-                    <div class="input-group date">
-                        <input id="startDate" name="startDate" type="text" class="form-control" value="${now.toString(dateFormat)}">
-                        <div class="input-group-addon">
-                            <span class="glyphicon glyphicon-th"></span>
-                        </div>
+                <p>Select a Date Range, filter concert results by User or Location and decide if you want to include Festivals.</p>
+            </div>
+            </div>
+            <div class="row">
+                <div col="col-sm-12 col-lg-3">
+                    <div id="dateRange" class="pull-right">
+                        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+                        <span></span> <b class="caret pull-right"></b>
                     </div>
                 </div>
             </div>
-            <div col="col-sm-12 col-lg-3">
-                <label for="endDate" class="control-label">to</label>
-                <div class="form-group">
-                    <div class="input-group date">
-                        <input id="endDate" name="endDate" type="text" class="form-control" value="${now.plusMonths(1).toString(dateFormat)}">
-                        <div class="input-group-addon">
-                            <span class="glyphicon glyphicon-th"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="row">
             <div col="col-sm-12 col-lg-3">
                 <div class="form-group">
                     <g:checkBox name="filterByArea" class="form-control switch"></g:checkBox>
                 </div>
                 <div class="form-group hidden" id="areaSection">
-                    <label for="area" class="control-label">Area</label>
                     <g:select name="area" from="${grailsApplication.config.com.spotkick.songkick.areas as List}" disabled="true" class="form-control" />
                 </div>
             </div>
+            </div>
+            <div class="row">
             <div col="col-sm-12 col-lg-3">
                 <div class="form-group">
                     <g:checkBox name="includeFestivals" class="form-control switch" />
                 </div>
             </div>
+            </div>
+            <div class="row">
             <div col="col-sm-12 col-lg-3">
-                <g:submitButton name="getConcertArtistsButton" value="Fetch"  class="btn btn-info"></g:submitButton>
+                <input id="startDate" name="startDate" class="form-control" value="${now.toString(dateFormat)}" type="hidden">
+                <input id="endDate" name="endDate" class="form-control" value="${now.plusMonths(1).toString(dateFormat)}" type="hidden">
+                <g:submitButton name="getConcertArtistsButton" value="Get Gigging Artists"  class="btn btn-success"></g:submitButton>
+            </div>
             </div>
         </g:form>
+        </div>
     </div>
     <script>
         $(function () {
-            $('.date').datepicker({
-                format: 'dd/mm/yyyy',
-            });
+            var start = moment();
+            var end = moment().add(1, 'month');
 
-            $('.date').on('changeDate', function(){
-                $(this).datepicker('hide');
-            });
+            function cb(start, end) {
+                $("#startDate").val(start.format('DD/MM/YYYY'));
+                $("#endDate").val(end.format('DD/MM/YYYY'));
+                $("#dateRange span").html(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+            }
+
+            $('#dateRange').daterangepicker({
+                startDate: start,
+                endDate: end,
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Tomorrow': [moment().add(1, 'days'), moment().add(1, 'days')],
+                    'This Week': [moment(), moment().add(1, 'weeks')],
+                    'This Month': [moment(), moment().add(1, 'month')],
+                    'Next Month': [moment().add(1, 'months').startOf('month'), moment().add(1, 'months').endOf('month')],
+                    'Next 6 Months': [moment(), moment().add(6, 'month').endOf('month')]
+                }
+            }, cb);
+
+            cb(start, end);
 
             $("#filterByArea").bootstrapSwitch({
                 size: "small",
