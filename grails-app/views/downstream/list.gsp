@@ -32,7 +32,7 @@
             <div class="row">
             <div col="col-sm-12 col-lg-3">
                 <div class="form-group">
-                    <input id="numberOfTracks" name="numberOfTracks" type="text" data-slider-min="1" data-slider-max="20" data-slider-step="1" data-slider-value="1"/>
+                    <input id="numberOfTracks" name="numberOfTracks" type="text" data-slider-min="1" data-slider-max="10" data-slider-step="1" data-slider-value="1"/>
                 </div>
             </div>
             </div>

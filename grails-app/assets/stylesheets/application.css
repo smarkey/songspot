@@ -7,51 +7,9 @@
 * You're free to add application-wide styles to this file and they'll appear at the top of the
 * compiled file, but it's generally better to create a new file per style scope.
 *
-*= require bootstrap
 *= require grails
 *= require main
 *= require mobile
+*= require custom
 *= require_self
 */
-
-#artists {
-    height: 200px;
-}
-
-.footer {
-    background-color: transparent;
-}
-
-.navbar {
-    background-color: transparent;
-    background-image: none;
-    box-shadow: none;
-    border-color: transparent;
-}
-
-.navbar-header h1 {
-    color: black !important;
-    text-align: center;
-}
-
-#dateRange {
-    background: #fff;
-    border-radius: 5px;
-    cursor: pointer;
-    padding: 5px 10px;
-    border: 1px solid #ccc;
-    width: 100%;
-    margin-bottom: 15px;
-}
-
-#dateRange .caret {
-    margin-top: 10px;
-}
-
-.center {
-    text-align: center
-}
-
-p {
-    margin-bottom: 15px;
-}

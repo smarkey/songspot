@@ -5,6 +5,7 @@ import grails.converters.JSON
 class MainController {
     def downstreamService
     def upstreamService
+    def utilitiesService
 
     def index() {
         render(view:"/index")

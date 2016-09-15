@@ -15,7 +15,7 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/**/favicon.ico', 				access: ['permitAll']],
 	[pattern: '/spotkickUserConfig/**',         access: ['ROLE_ADMIN']],
 	[pattern: '/downstream/**',          		access: ['ROLE_ADMIN']],
-	[pattern: '/upstream/**',          			access: ['ROLE_ADMIN']],
+	[pattern: '/upstream/**',          			access: ['permitAll']],
 	[pattern: '/main/**',          				access: ['ROLE_ADMIN']],
 ]
 
