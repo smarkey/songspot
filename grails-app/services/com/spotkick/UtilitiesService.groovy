@@ -13,7 +13,7 @@ class UtilitiesService {
 
     def handleResponse(resp) {
         switch(resp.statusCode.value) {
-            case 200: log.info("Scup"); break;
+            case 200: log.debug("Scup"); break;
             case 400: log.error("Bad Request: $resp.json.error"); break;
             case 401: log.error("Unauthorized: The request requires user authentication."); break;
             case 403: log.error("Forbidden: The server understood the request, but is refusing to fulfill it."); break;

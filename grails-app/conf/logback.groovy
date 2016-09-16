@@ -24,9 +24,9 @@ if (Environment.isDevelopmentMode() && targetDir) {
     logger("grails.app", INFO, ['FULL_STACKTRACE'])
 }
 
-if (Environment.isWarDeployed() && targetDir) {
+if (Environment.isWarDeployed()) {
     appender("FULL_STACKTRACE", FileAppender) {
-        file = "${targetDir}/logs/spotkick.log"
+        file = "/var/log/tomcat7/spotkick.log"
         append = true
         encoder(PatternLayoutEncoder) {
             pattern = "%d{HH:mm:ss.SSS} %level %logger - %msg%n"
