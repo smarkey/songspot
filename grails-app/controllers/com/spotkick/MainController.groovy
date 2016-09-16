@@ -1,11 +1,8 @@
 package com.spotkick
 
-import grails.converters.JSON
-
 class MainController {
     def downstreamService
     def upstreamService
-    def utilitiesService
 
     def index() {
         render(view:"/index")
@@ -15,34 +12,45 @@ class MainController {
         def filters = downstreamService.formatFilters(params)
         def artists = filters.artistRestriction
         def resultJson = null
+        int numberOfTracks = params.int("numberOfTracks")
+        String playlistName = params.name
 
-        if(!artists || artists.size() == 0) {
-            log.info("No artists specified...")
-            flash.message = "No artists specified"
+        if(!artists || artists?.size() == 0) {
+            log.error("No artists selected")
+            flash.message = "No artists were selected."
             redirect(action:"index")
+            return
         }
 
-        def playlistJsonResponse = upstreamService.createPlaylist(params.name)
+        if(!playlistName || playlistName == "") {
+            log.error("No playlist name")
+            flash.message = "No playlist name was provided."
+            redirect(action:"index")
+            return
+        }
+
+        def playlistJsonResponse = upstreamService.createPlaylist(playlistName)
 
         List<String> missingArtists = []
+
         artists.each { artist ->
             String scrubbedArtistName = artist.replaceAll("[-+!.^:,]","")
             def spotifyArtistSearchResult = upstreamService.findArtistByName(scrubbedArtistName)
 
-            if(spotifyArtistSearchResult.size() == 0) {
+            if(!spotifyArtistSearchResult || spotifyArtistSearchResult?.size() == 0) {
                 missingArtists << artist
                 return
             }
 
             String artistId = spotifyArtistSearchResult.first().id
-            int numberOfTracks = params.int("numberOfTracks")
+
             def topTracks = upstreamService.getArtistsTopTracks(artistId, numberOfTracks)
             def uris = topTracks*.uri
 
             resultJson = upstreamService.addTrackToPlaylist(uris, playlistJsonResponse?.id)
         }
 
-        log.info("Created Playlist '${params.name}' with Top Tracks for ${artists.size()} artists: ${artists.join(", ")}")
+        log.info("Created Playlist '${playlistName}' with $numberOfTracks tracks each for ${artists.size()} artists:\n${artists}")
         render (view:"/downstream/playlistPreview", model:[
                 spotifyPlaylistUri: playlistJsonResponse?.uri,
                 missingArtists: missingArtists,
@@ -56,23 +64,11 @@ class MainController {
         def filters = downstreamService.formatFilters(params)
         def concerts = downstreamService.getConcerts(filters)
         def artistNames = concerts*.performances*.name.flatten().unique().sort()
-        log.info("Found: $artistNames")
+        log.info("Found ${artistNames.size()} artists:\n$artistNames")
         render (view:"/downstream/list", model:[
                 artists: artistNames,
                 playlistName: downstreamService.generatePlaylistName(filters),
                 getConcertArtistsParams: params
         ])
-    }
-
-    def ajaxGetConcerts() {
-        int page = params.int("page")
-        log.info("Getting Concert Artists on page ${page}...")
-        def filters = downstreamService.formatFilters(params)
-        def concerts = downstreamService.getConcerts(filters, page)
-        def artistNames = concerts*.performances*.name.flatten().unique().sort()
-        log.info("Found: $artistNames")
-
-        def json = [artistNames: artistNames]
-        render json as JSON
     }
 }
