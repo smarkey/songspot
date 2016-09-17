@@ -10,7 +10,7 @@
 <body>
     <div class="row">
         <g:if test="${flash.message}">
-            <div col="col-sm-12 col-lg-12">
+            <div class="col-sm-12">
                 <div class="alert alert-danger">
                     ${flash.message}
                 </div>
@@ -18,48 +18,48 @@
         </g:if>
     </div>
     <div class="row">
-        <div class="col-sm-12 col-lg-12 center">
-        <g:form name="getConcertArtistsForm" controller="main" action="getConcertArtists">
-            <div class="row">
-            <div col="col-sm-12 col-lg-12">
-                <p>Select a Date Range, filter concert results by User or Location and decide if you want to include Festivals.</p>
-            </div>
-            </div>
-            <div class="row">
-                <div col="col-sm-12 col-lg-12">
-                    <div id="dateRange" class="pull-right">
-                        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
-                        <span></span> <b class="caret pull-right"></b>
+        <div class="col-sm-12 center">
+            <g:form name="getConcertArtistsOrFestivalsForm" controller="main" action="getConcertArtistsOrFestivals">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <p><g:message code="com.spotkick.index.description"/></p>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-            <div col="col-sm-12 col-lg-12">
-                <div class="form-group">
-                    <g:checkBox name="filterByArea" class="form-control switch"></g:checkBox>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div id="dateRange" class="pull-right">
+                            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+                            <span></span> <b class="caret pull-right"></b>
+                        </div>
+                        <input id="startDate" name="startDate" class="form-control" value="${now.toString(dateFormat)}" type="hidden">
+                        <input id="endDate" name="endDate" class="form-control" value="${now.plusMonths(1).toString(dateFormat)}" type="hidden">
+                    </div>
                 </div>
-                <div class="form-group hidden" id="areaSection">
-                    <g:select name="area" from="${grailsApplication.config.com.spotkick.songkick.areas as List}" disabled="true" class="form-control" />
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="input-group margin-bottom">
+                            <span class="input-group-addon no-padding" id="basic-addon1">
+                                <g:checkBox name="filterBy" class="form-control switch no-border"></g:checkBox>
+                            </span>
+                            <g:select name="location" from="${grailsApplication.config.com.spotkick.songkick.areas as List}" disabled="false" class="form-control" aria-describedby="basic-addon1"/>
+                            <g:textField name="user" value="steven-markey-1" disabled="true" class="form-control hidden" aria-describedby="basic-addon1"/>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            </div>
-            <div class="row">
-            <div col="col-sm-12 col-lg-12">
-                <div class="form-group">
-                    <g:checkBox name="includeFestivals" class="form-control switch" />
+                <div class="row">
+                    <div class="col-sm-12 center">
+                        <g:submitButton name="getArtistsButton" value="Get Performing Artists"  class="btn btn-success margin-bottom"></g:submitButton>
+                    </div>
                 </div>
-            </div>
-            </div>
-            <div class="row">
-            <div col="col-sm-12 col-lg-12">
-                <input id="startDate" name="startDate" class="form-control" value="${now.toString(dateFormat)}" type="hidden">
-                <input id="endDate" name="endDate" class="form-control" value="${now.plusMonths(1).toString(dateFormat)}" type="hidden">
-                <g:submitButton name="getConcertArtistsButton" value="Get Gigging Artists"  class="btn btn-success"></g:submitButton>
-            </div>
-            </div>
-        </g:form>
+                <div class="row">
+                    <div class="col-sm-12 center">
+                        <g:submitButton name="getFestivalsButton" value="Get Festivals"  class="btn btn-success margin-bottom"></g:submitButton>
+                    </div>
+                </div>
+            </g:form>
         </div>
     </div>
+
     <script>
         $(function () {
             var start = moment();
@@ -86,30 +86,21 @@
 
             cb(start, end);
 
-            $("#filterByArea").bootstrapSwitch({
+            $("#filterBy").bootstrapSwitch({
                 size: "small",
-                onText: "Filtering by Area",
-                offText: "Filtering by User",
+                onText: "User",
+                offText: "Location",
                 labelWidth: 0,
                 offColor: "info",
                 onSwitchChange: function(event, state) {
-                    console.debug(state);
                     if(state == true) {
-                        $("#areaSection").removeClass("hidden");
-                        $("#area").prop("disabled", false);
+                        $("#location").addClass("hidden").prop("disabled", true);
+                        $("#user").removeClass("hidden").prop("disabled", false);
                     } else {
-                        $("#areaSection").addClass("hidden");
-                        $("#area").prop("disabled", true);
+                        $("#location").removeClass("hidden").prop("disabled", false);
+                        $("#user").addClass("hidden").prop("disabled", true);
                     }
                 }
-            });
-
-            $("#includeFestivals").bootstrapSwitch({
-                size: "small",
-                onText: "Including festivals",
-                offText: "Not including festivals",
-                labelWidth: 0,
-                offColor: "info"
             });
         });
     </script>

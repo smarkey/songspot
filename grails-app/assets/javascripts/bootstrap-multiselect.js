@@ -932,7 +932,8 @@
             }
 
             if (this.options.enableCollapsibleOptGroups && this.options.multiple) {
-                $('a', $li).append('<span class="caret-container"><b class="caret"></b></span>');
+                //TODO: added prepend
+                $('a', $li).prepend('<span class="caret-container"><b class="caret"></b></span>');
             }
 
             if (this.options.enableClickableOptGroups && this.options.multiple) {

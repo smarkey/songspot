@@ -33,7 +33,7 @@ class UpstreamController {
         log.info("Creating User if necessary.")
         String username = upstreamService.getSpotifyUserEmailAddress(map.spotifyAccessToken)
         String password = "ehrmehrgehrdlookuthehrbutt"
-        upstreamService.createSpotkickUserIfNecessary([username:username, password:password], "ROLE_ADMIN")
+        upstreamService.createSpotkickUserIfNecessary([username:username, password:password], "ROLE_USER")
 
         springSecurityService.reauthenticate(username, password)
         log.info("Logged in as ${springSecurityService.getCurrentUser().getUsername()}")

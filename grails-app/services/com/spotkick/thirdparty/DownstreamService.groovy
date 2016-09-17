@@ -22,12 +22,44 @@ class DownstreamService {
             resp = rest.get(metroUrl)
             results = resp.json.resultsPage.results.event
         } else {
-            String userUrl = getUserEventsUrl(page)
+            String userUrl = getUserEventsUrl(page, filters.user)
             resp = rest.get(userUrl)
             results = resp.json.resultsPage.results.calendarEntry*.event
         }
 
         def formattedConcerts = formatConcertsData(results)
+        return doFilters(formattedConcerts, filters)
+    }
+
+    def getFestivals(Map filters, int page=1) {
+        def resp = null
+        def results = []
+
+        if(filters.containsKey("areaRestriction")) {
+            String metroUrl = getMetroEventsUrl(filters.areaRestriction, filters, page)
+
+            resp = rest.get(metroUrl)
+            def resultsPage = resp.json.resultsPage
+            results << resultsPage.results.event
+
+            int totalPages = Math.ceil(resultsPage.totalEntries.toInteger()/resultsPage.perPage.toInteger()).toInteger()
+            (2..totalPages).each { pageNumber ->
+                results << rest.get(getMetroEventsUrl(filters.areaRestriction, filters, pageNumber)).json.resultsPage.results.event
+            }
+        } else {
+            String userUrl = getUserEventsUrl(page, filters.user)
+
+            resp = rest.get(userUrl)
+            def resultsPage = resp.json.resultsPage
+            results << resultsPage.results.calendarEntry*.event
+
+            int totalPages = Math.ceil(resultsPage.totalEntries.toInteger()/resultsPage.perPage.toInteger()).toInteger()
+            (2..totalPages).each { pageNumber ->
+                results << rest.get(getUserEventsUrl(page, filters.user)).json.resultsPage.results.calendarEntry*.event
+            }
+        }
+
+        def formattedConcerts = formatFestivalsData(results.flatten())
         return doFilters(formattedConcerts, filters)
     }
 
@@ -55,10 +87,14 @@ class DownstreamService {
                 "page=$page"
     }
 
-    def getUserEventsUrl(page) {
+    def getUserEventsUrl(page, username=null) {
         SpotkickUserConfig spotkickUserConfig = utilitiesService.getUserConfig()
         String songkickApiKey = spotkickUserConfig.getSongkickApiKey()
         String songkickApiUsername = spotkickUserConfig.getSongkickUsername()
+
+        if(username && username!="") {
+            songkickApiUsername = username
+        }
 
         "$grailsApplication.config.com.spotkick.songkick.url" +
                 "/users/$songkickApiUsername/calendar.json?" +
@@ -98,6 +134,10 @@ class DownstreamService {
         }
 
         data
+    }
+
+    def formatFestivalsData(results) {
+        results.findAll { it?.type=="Festival"}
     }
 
     def doFilters(data, filters) {
@@ -179,18 +219,10 @@ class DownstreamService {
             }
         }
 
-        if(params.containsKey("area")) {
-            filters.areaRestriction = params.area
+        if(params.containsKey("location")) {
+            filters.areaRestriction = params.location
         }
 
         return filters
-    }
-
-    def generatePlaylistName(filters) {
-        DateTime startDate = filters.dateRestriction.startDate
-        DateTime endDate = filters.dateRestriction.endDate
-        DateTimeFormatter dtf = DateTimeFormat.forPattern("dd/MM/yy")
-
-        "Spotkick Gigs ${dtf.print(startDate)}-${dtf.print(endDate)}"
     }
 }

@@ -8,8 +8,8 @@ class BootStrap {
     def init = { servletContext ->
         createSpotkickRoleIfNecessary("ROLE_USER")
         createSpotkickRoleIfNecessary("ROLE_ADMIN")
-        createSpotkickUserIfNecessary([username:"admin", password:"password"], "ROLE_ADMIN")
-        createSpotkickUserIfNecessary([username:"user", password:"password"], "ROLE_USER")
+        //createSpotkickUserIfNecessary([username:"admin", password:"password"], "ROLE_ADMIN")
+        //createSpotkickUserIfNecessary([username:"user", password:"password"], "ROLE_USER")
     }
     
     def destroy = {

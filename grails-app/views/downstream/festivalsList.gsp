@@ -7,7 +7,7 @@
 <body>
     <div class="row">
         <g:if test="${flash.message}">
-            <div col="col-sm-12 col-lg-12">
+            <div col="col-sm-12">
                 <div class="alert alert-danger">
                     ${flash.message}
                 </div>
@@ -15,20 +15,28 @@
         </g:if>
     </div>
     <div class="row">
-        <div class="col-sm-12 col-lg-12 center">
+        <div class="col-sm-12 center">
         <g:form name="addAllConcertArtistsTopTracksToNewPlaylistForm" controller="main" action="addAllConcertArtistsTopTracksToNewPlaylist">
             <div class="row">
-                <div col="col-sm-12 col-lg-12">
-                    <p><g:message code="com.spotkick.list.concerts.description"/></p>
+                <div col="col-sm-12">
+                    <p><g:message code="com.spotkick.list.fetivals.description" /></p>
                 </div>
             </div>
             <div class="row">
-                <div col="col-sm-12 col-lg-12">
-                    <g:select name="artists" multiple="true" from="${artists}" class="form-control hidden"></g:select>
+                <div col="col-sm-12">
+                    <select id="artists" name="artists" multiple="true" class="form-control hidden">
+                        <g:each in="${festivals}" var="festival">
+                            <optgroup label="${festival.key.replaceAll(" 2016", "")} (${festival.value.size()})">
+                                <g:each in="${festival.value}" var="artist">
+                                    <option value="${artist}">${artist}</option>
+                                </g:each>
+                            </optgroup>
+                        </g:each>
+                    </select>
                 </div>
             </div>
             <div class="row">
-                <div col="col-sm-12 col-lg-12">
+                <div col="col-sm-12">
                     <input id="numberOfTracks" name="numberOfTracks" type="text" data-slider-min="1" data-slider-max="10" data-slider-step="1" data-slider-value="1"/>
                 </div>
             </div>
@@ -40,7 +48,7 @@
                 </div>
             </div>
             <div class="row">
-                <div col="col-sm-12 col-lg-12">
+                <div col="col-sm-12">
                     <g:submitButton name="addAllConcertArtistsTopTracksToNewPlaylistButton" value="Create Playlist" class="btn btn-success"></g:submitButton>
                 </div>
             </div>
@@ -50,12 +58,24 @@
 
     <script>
         $(function(){
+            var isMobile = false; //initiate as false
+
             $("#artists").multiselect({
                 maxHeight: 450,
                 enableFiltering: true,
                 includeSelectAllOption: true,
+                enableClickableOptGroups: true,
+                enableCollapsibleOptGroups: true,
+                disableIfEmpty: true,
+                disabledText: "No festivals found",
                 buttonText: function(options, select) {
-                    return options.length+" artists selected";
+                    return options.length+" festivals selected";
+                },
+                onInitialized: function() {
+                    var $li = $(".caret-container").closest('li');
+                    var $inputs = $li.nextUntil("li.multiselect-group").not('.multiselect-filter-hidden');
+                    $inputs.hide().addClass('multiselect-collapsible-hidden');
+                    $(".multiselect-item a").click()
                 },
                 onDropdownShow: function() {
                     var width = $("button.multiselect").width() + $("button.multiselect").css("padding-left").replace("px", "") * 2;
@@ -63,7 +83,10 @@
                     $(".btn-group .multiselect-container").width(width);
                 }
             });
-            $("#numberOfTracks").slider();
+
+            $("#numberOfTracks").slider({
+                tooltip: 'show'
+            });
         });
     </script>
 </body>

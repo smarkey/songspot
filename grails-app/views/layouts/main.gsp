@@ -37,8 +37,6 @@
                     %{--<span class="icon-bar"></span>--}%
                     %{--<span class="icon-bar"></span>--}%
                 %{--</button>--}%
-                %{--<g:link controller="main" action="getConcertArtists" params="$addAllConcertArtistsTopTracksToNewPlaylistParams">Back</g:link>--}%
-                %{--<br/>--}%
                 <h1>Spotkick</h1>
             </div>
             <div class="navbar-collapse collapse" aria-expanded="false" style="height: 0.8px;">

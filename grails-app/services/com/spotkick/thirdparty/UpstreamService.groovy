@@ -1,9 +1,6 @@
 package com.spotkick.thirdparty
 
-import com.spotkick.SpotkickRole
-import com.spotkick.SpotkickUser
-import com.spotkick.SpotkickUserConfig
-import com.spotkick.SpotkickUserSpotkickRole
+import com.spotkick.*
 import grails.plugins.rest.client.RestBuilder
 import grails.util.Environment
 import org.joda.time.DateTime
@@ -11,6 +8,8 @@ import org.joda.time.DateTime
 class UpstreamService {
     def utilitiesService
     def grailsApplication
+    def springSecurityService
+
     static final RestBuilder rest = new RestBuilder()
 
     def getSpotifyUserId() {
@@ -81,7 +80,13 @@ class UpstreamService {
             header "Content-Type", "application/json"
             json name:"${name}",public:false
         }
-        utilitiesService.handleResponse(resp)
+
+        def json = utilitiesService.handleResponse(resp)
+        SpotkickUser currentUser = springSecurityService.getCurrentUser()
+        currentUser.numberOfGeneratedPlaylists += 1
+        Playlist playlist = new Playlist([name: name, href: json.href, uri: json.uri]).save()
+        currentUser.addToPlaylists(playlist).save()
+        return json
     }
 
     def getArtistsTopTracks(String artistId, int numberOftracks = 5) {
@@ -140,8 +145,8 @@ class UpstreamService {
 
     def createSpotkickUserIfNecessary(Map values, String authority) {
         if(!SpotkickUser.findAllByUsername(values.username)){
-            SpotkickUserConfig spotkickUserConfig = new SpotkickUserConfig([songkickApiKey:"JFeFSSO2cn7uoIIp", songkickUsername:"steven-markey-1"]).save(flush:true)
-            values << [spotkickUserConfig:spotkickUserConfig]
+            SpotkickUserConfig spotkickUserConfig = new SpotkickUserConfig([songkickApiKey: grailsApplication.config.com.spotkick.songkick.apiKey, songkickUsername:"steven-markey-1"]).save(flush:true)
+            values << [spotkickUserConfig:spotkickUserConfig, numberOfGeneratedPlaylists:0]
 
             SpotkickUser spotkickUser = new SpotkickUser(values).save()
             SpotkickRole spotkickRole = SpotkickRole.findByAuthority(authority)

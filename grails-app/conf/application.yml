@@ -17,16 +17,16 @@ dataSource:
 environments:
     development:
         dataSource:
-            dbCreate: create-drop
-            url: jdbc:mysql://localhost:3306/spotkick?autoReconnect=true&useSSL=false
+            url: jdbc:mysql://localhost:3306/spotkick?autoReconnect=true&useSSL=false&nullNamePatternMatchesAll=true
+            dbCreate: ''
     test:
         dataSource:
-            dbCreate: create-drop
-            url: jdbc:mysql://localhost:3306/spotkick?autoReconnect=true&useSSL=false
+            url: jdbc:mysql://localhost:3306/spotkick?autoReconnect=true&useSSL=false&nullNamePatternMatchesAll=true
+            dbCreate: ''
     production:
         dataSource:
-            dbCreate: update
-            url: jdbc:mysql://localhost:3306/spotkick?autoReconnect=true&useSSL=false
+            url: jdbc:mysql://localhost:3306/spotkick?autoReconnect=true&useSSL=false&nullNamePatternMatchesAll=true
+            dbCreate: ''
             properties:
                 jmxEnabled: true
                 initialSize: 5

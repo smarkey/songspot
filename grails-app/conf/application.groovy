@@ -5,18 +5,18 @@ grails.plugin.springsecurity.authority.className = 'com.spotkick.SpotkickRole'
 grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/',               				access: ['permitAll']],
 	[pattern: '/error',          				access: ['permitAll']],
-	[pattern: '/index',          				access: ['ROLE_ADMIN']],
-	[pattern: '/index.gsp',      				access: ['ROLE_ADMIN']],
+	[pattern: '/index',          				access: ['ROLE_USER']],
+	[pattern: '/index.gsp',      				access: ['ROLE_USER']],
 	[pattern: '/shutdown',       				access: ['permitAll']],
 	[pattern: '/assets/**',      				access: ['permitAll']],
 	[pattern: '/**/js/**',       				access: ['permitAll']],
 	[pattern: '/**/css/**',      				access: ['permitAll']],
 	[pattern: '/**/images/**',   				access: ['permitAll']],
 	[pattern: '/**/favicon.ico', 				access: ['permitAll']],
-	[pattern: '/spotkickUserConfig/**',         access: ['ROLE_ADMIN']],
-	[pattern: '/downstream/**',          		access: ['ROLE_ADMIN']],
+	[pattern: '/spotkickUserConfig/**',         access: ['ROLE_USER']],
+	[pattern: '/downstream/**',          		access: ['ROLE_USER']],
 	[pattern: '/upstream/**',          			access: ['permitAll']],
-	[pattern: '/main/**',          				access: ['ROLE_ADMIN']],
+	[pattern: '/main/**',          				access: ['ROLE_USER']],
 ]
 
 grails.plugin.springsecurity.filterChain.chainMap = [
@@ -38,6 +38,7 @@ com.spotkick = [
 				liveCallback: "http%3A%2F%2Fspotkick%2Estevenmarkey%2Ecom%2Fupstream%2Fcallback"
         ],
 		songkick: [
+				apiKey: "JFeFSSO2cn7uoIIp",
 				url: "http://api.songkick.com/api/3.0",
 				areas: [
 						"London UK",
@@ -46,10 +47,13 @@ com.spotkick = [
 						"Edinburgh UK",
 						"Cardiff UK",
 						"Belfast UK",
-						"Dublin Ireland"
+						"Dublin Ireland",
+						"New York USA",
+						"Berlin Germany"
 				]
 		]
 ]
 
-grails.plugin.databasemigration.reports.updateOntart = true
-grails.plugin.databasemigration.updateOnStartFileNames = ['changelog.groovy']
+grails.plugin.databasemigration.updateOnStart = true
+grails.plugin.databasemigration.updateOnStartFileNames = ["changelog.groovy"]
+grails.plugin.databasemigration.changelogLocation = 'grails-app/migrations'

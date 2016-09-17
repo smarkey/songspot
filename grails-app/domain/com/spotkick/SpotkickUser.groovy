@@ -18,6 +18,9 @@ class SpotkickUser implements Serializable {
 	boolean accountLocked
 	boolean passwordExpired
 	SpotkickUserConfig spotkickUserConfig
+	int numberOfGeneratedPlaylists
+
+	static hasMany = [playlists: Playlist]
 
 	Set<SpotkickRole> getAuthorities() {
 		SpotkickUserSpotkickRole.findAllBySpotkickUser(this)*.spotkickRole

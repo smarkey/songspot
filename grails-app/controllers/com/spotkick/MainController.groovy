@@ -4,6 +4,8 @@ class MainController {
     def downstreamService
     def upstreamService
 
+    static final SCRUBBED_CHARS = "[^a-zA-Z0-9]+"
+
     def index() {
         render(view:"/index")
     }
@@ -34,7 +36,7 @@ class MainController {
         List<String> missingArtists = []
 
         artists.each { artist ->
-            String scrubbedArtistName = artist.replaceAll("[-+!.^:,]","")
+            String scrubbedArtistName = artist.replaceAll(SCRUBBED_CHARS,"")
             def spotifyArtistSearchResult = upstreamService.findArtistByName(scrubbedArtistName)
 
             if(!spotifyArtistSearchResult || spotifyArtistSearchResult?.size() == 0) {
@@ -50,13 +52,20 @@ class MainController {
             resultJson = upstreamService.addTrackToPlaylist(uris, playlistJsonResponse?.id)
         }
 
-        log.info("Created Playlist '${playlistName}' with $numberOfTracks tracks each for ${artists.size()} artists:\n${artists}")
+        log.info("Created Playlist '${playlistName}' with $numberOfTracks tracks each for ${artists.size() - missingArtists?.size()}/${artists.size()} artists\nFound: ${artists.removeAll(missingArtists)}\nNot Found: ${missingArtists}")
         render (view:"/downstream/playlistPreview", model:[
                 spotifyPlaylistUri: playlistJsonResponse?.uri,
-                missingArtists: missingArtists,
-                addAllConcertArtistsTopTracksToNewPlaylistParams: params,
-                getConcertArtistsParams: params.getConcertArtistsParams
+                missingArtists: missingArtists
         ])
+    }
+
+    def getConcertArtistsOrFestivals() {
+        if(params.getArtistsButton) {
+            redirect(action: "getConcertArtists", params: params)
+        }
+        if(params.getFestivalsButton) {
+            redirect(action: "getFestivals", params: params)
+        }
     }
 
     def getConcertArtists() {
@@ -66,9 +75,19 @@ class MainController {
         def artistNames = concerts*.performances*.name.flatten().unique().sort()
         log.info("Found ${artistNames.size()} artists:\n$artistNames")
         render (view:"/downstream/list", model:[
-                artists: artistNames,
-                playlistName: downstreamService.generatePlaylistName(filters),
-                getConcertArtistsParams: params
+                artists: artistNames
+        ])
+    }
+
+    def getFestivals() {
+        log.info("Getting Festivals...")
+        params.includeFestivals = "on"
+        def filters = downstreamService.formatFilters(params)
+        def festivals = downstreamService.getFestivals(filters)
+        def festivalNames = festivals*.displayName
+        log.info("Found ${festivalNames.size()} festivals:\n$festivalNames")
+        render (view:"/downstream/festivalsList", model:[
+                festivals: festivals.collectEntries { if(it.performance?.size() > 0) { [ "${it.displayName}": it.performance*.displayName.unique().sort()] } }
         ])
     }
 }
