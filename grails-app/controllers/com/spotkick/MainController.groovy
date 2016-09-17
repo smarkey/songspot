@@ -4,7 +4,7 @@ class MainController {
     def downstreamService
     def upstreamService
 
-    static final SCRUBBED_CHARS = "[^a-zA-Z0-9]+"
+    static final SCRUBBED_CHARS = "[-+!.^:,]"
 
     def index() {
         render(view:"/index")
@@ -52,7 +52,9 @@ class MainController {
             resultJson = upstreamService.addTrackToPlaylist(uris, playlistJsonResponse?.id)
         }
 
-        log.info("Created Playlist '${playlistName}' with $numberOfTracks tracks each for ${artists.size() - missingArtists?.size()}/${artists.size()} artists\nFound: ${artists.removeAll(missingArtists)}\nNot Found: ${missingArtists}")
+        def notMissingArtists = artists
+        notMissingArtists.removeAll(missingArtists)
+        log.info("Created Playlist '${playlistName}' with $numberOfTracks tracks each for ${artists.size() - missingArtists?.size()}/${artists.size()} artists\nFound: ${notMissingArtists}\nNot Found: ${missingArtists}")
         render (view:"/downstream/playlistPreview", model:[
                 spotifyPlaylistUri: playlistJsonResponse?.uri,
                 missingArtists: missingArtists
