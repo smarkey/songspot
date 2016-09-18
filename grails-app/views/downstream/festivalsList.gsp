@@ -58,10 +58,8 @@
 
     <script>
         $(function(){
-            var isMobile = false; //initiate as false
-
             $("#artists").multiselect({
-                maxHeight: 450,
+                maxHeight: 400,
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 enableClickableOptGroups: true,
@@ -69,7 +67,7 @@
                 disableIfEmpty: true,
                 disabledText: "No festivals found",
                 buttonText: function(options, select) {
-                    return options.length+" festivals selected";
+                    return options.length+" artists selected";
                 },
                 onInitialized: function() {
                     var $li = $(".caret-container").closest('li');

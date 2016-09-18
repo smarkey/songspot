@@ -118,7 +118,7 @@ class UpstreamService {
 
         SpotkickUserConfig spotkickUserConfig = utilitiesService.getUserConfig()
         String spotifyAccessToken = spotkickUserConfig.getSpotifyAccessToken()
-        String encodedArtistName = URLEncoder.encode(artistName)
+        String encodedArtistName = URLEncoder.encode(artistName.replaceAll('"', '\\"').replaceAll("\\(.*?\\) ?", ""))
 
         def resp = rest.get("$grailsApplication.config.com.spotkick.spotify.url/search?q=$encodedArtistName&type=artist&market=GB&limit=1") {
             header "Authorization", "Bearer ${spotifyAccessToken.toString()}"

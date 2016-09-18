@@ -4,8 +4,6 @@ class MainController {
     def downstreamService
     def upstreamService
 
-    static final SCRUBBED_CHARS = "[-+!.^:,]"
-
     def index() {
         render(view:"/index")
     }
@@ -36,8 +34,7 @@ class MainController {
         List<String> missingArtists = []
 
         artists.each { artist ->
-            String scrubbedArtistName = artist.replaceAll(SCRUBBED_CHARS,"")
-            def spotifyArtistSearchResult = upstreamService.findArtistByName(scrubbedArtistName)
+            def spotifyArtistSearchResult = upstreamService.findArtistByName(artist)
 
             if(!spotifyArtistSearchResult || spotifyArtistSearchResult?.size() == 0) {
                 missingArtists << artist
@@ -89,7 +86,13 @@ class MainController {
         def festivalNames = festivals*.displayName
         log.info("Found ${festivalNames.size()} festivals:\n$festivalNames")
         render (view:"/downstream/festivalsList", model:[
-                festivals: festivals.collectEntries { if(it.performance?.size() > 0) { [ "${it.displayName}": it.performance*.displayName.unique().sort()] } }
+                festivals: festivals.collectEntries {
+                    if(it.performance?.size() > 0) {
+                        [ "${it?.displayName}": it?.performance*.displayName?.unique()?.sort()]
+                    } else {
+                        [:]
+                    }
+                }
         ])
     }
 }

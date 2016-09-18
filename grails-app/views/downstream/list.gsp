@@ -51,7 +51,7 @@
     <script>
         $(function(){
             $("#artists").multiselect({
-                maxHeight: 450,
+                maxHeight: 400,
                 enableFiltering: true,
                 includeSelectAllOption: true,
                 buttonText: function(options, select) {
