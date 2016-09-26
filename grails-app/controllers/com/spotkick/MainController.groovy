@@ -11,7 +11,6 @@ class MainController {
     def addAllConcertArtistsTopTracksToNewPlaylist() {
         def filters = downstreamService.formatFilters(params)
         def artists = filters.artistRestriction
-        def resultJson = null
         int numberOfTracks = params.int("numberOfTracks")
         String playlistName = params.name
 
@@ -31,6 +30,7 @@ class MainController {
 
         def playlistJsonResponse = upstreamService.createPlaylist(playlistName)
 
+        List<String> uris = []
         List<String> missingArtists = []
 
         artists.each { artist ->
@@ -44,17 +44,68 @@ class MainController {
             String artistId = spotifyArtistSearchResult.first().id
 
             def topTracks = upstreamService.getArtistsTopTracks(artistId, numberOfTracks)
-            def uris = topTracks*.uri
 
-            resultJson = upstreamService.addTrackToPlaylist(uris, playlistJsonResponse?.id)
+            if(topTracks*.uri.empty) {
+                log.error("Artist has no tracks in Spotify: $artist")
+                return
+            }
+
+            uris << topTracks*.uri
         }
 
-        def notMissingArtists = artists
-        notMissingArtists.removeAll(missingArtists)
-        log.info("Created Playlist '${playlistName}' with $numberOfTracks tracks each for ${artists.size() - missingArtists?.size()}/${artists.size()} artists\nFound: ${notMissingArtists}\nNot Found: ${missingArtists}")
+        List<String> correctedMissingArtistsList = []
+        missingArtists.each { artist ->
+            def splitArtists = null
+
+            if(artist.contains(" & ")) {
+                splitArtists = artist.split(" & ")
+            } else if(artist.contains("&")) {
+                splitArtists = artist.split("&")
+            } else if(artist.contains(" and ")) {
+                splitArtists =  artist.split(" and ")
+            }
+
+            if(splitArtists) {
+                int foundNothingForSplits = 0
+
+                splitArtists.each { splitMissingArtist ->
+                    def spotifyArtistSearchResult = upstreamService.findArtistByName(splitMissingArtist)
+
+                    if(!spotifyArtistSearchResult || spotifyArtistSearchResult?.size() == 0) {
+                        foundNothingForSplits++
+                        return
+                    }
+
+                    String artistId = spotifyArtistSearchResult.first().id
+
+                    def topTracks = upstreamService.getArtistsTopTracks(artistId, numberOfTracks)
+
+                    if(topTracks*.uri.empty) {
+                        log.error("Artist has no tracks in Spotify: $artist")
+                        return
+                    }
+
+                    uris << topTracks*.uri
+                    return
+                }
+
+                if(foundNothingForSplits == 0) {
+                    correctedMissingArtistsList << artist
+                }
+            } else {
+                correctedMissingArtistsList << artist
+            }
+        }
+
+        def resultJson = upstreamService.addTrackToPlaylist(uris.flatten().unique(), playlistJsonResponse?.id)
+
+        int notMissingArtists = artists.size() - correctedMissingArtistsList.size()
+
+        log.info("Created Playlist '${playlistName}' with $numberOfTracks tracks each for ${notMissingArtists}/${artists.size()} artists\n" +
+                "Not Found: ${correctedMissingArtistsList}")
         render (view:"/downstream/playlistPreview", model:[
                 spotifyPlaylistUri: playlistJsonResponse?.uri,
-                missingArtists: missingArtists
+                missingArtists: correctedMissingArtistsList
         ])
     }
 

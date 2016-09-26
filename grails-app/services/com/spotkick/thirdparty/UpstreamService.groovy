@@ -1,14 +1,16 @@
 package com.spotkick.thirdparty
 
 import com.spotkick.*
+import grails.core.GrailsApplication
+import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugins.rest.client.RestBuilder
 import grails.util.Environment
 import org.joda.time.DateTime
 
 class UpstreamService {
-    def utilitiesService
-    def grailsApplication
-    def springSecurityService
+    UtilitiesService utilitiesService
+    GrailsApplication grailsApplication
+    SpringSecurityService springSecurityService
 
     static final RestBuilder rest = new RestBuilder()
 
@@ -22,7 +24,7 @@ class UpstreamService {
             header "Authorization", "Bearer ${spotifyAccessToken.toString()}"
             header "Content-Type", "application/json"
         }
-        utilitiesService.handleResponse(resp).id
+        utilitiesService.handleResponse(resp, [method: "getSpotifyUserId"]).id
     }
 
     def getSpotifyUserEmailAddress(spotifyAccessToken) {
@@ -30,7 +32,7 @@ class UpstreamService {
             header "Authorization", "Bearer ${spotifyAccessToken.toString()}"
             header "Content-Type", "application/json"
         }
-        utilitiesService.handleResponse(resp).email
+        utilitiesService.handleResponse(resp, [method: "getSpotifyUserEmailAddress"]).email
     }
 
     def getToken(spotifyAuthorizationCode) {
@@ -43,7 +45,7 @@ class UpstreamService {
             header "Authorization", "Basic ${"$clientId:$clientSecret".bytes.encodeBase64().toString()}"
         }
 
-        def json = utilitiesService.handleResponse(resp)
+        def json = utilitiesService.handleResponse(resp, [method: "getToken"])
 
         [
             spotifyAccessToken: json.access_token,
@@ -63,7 +65,7 @@ class UpstreamService {
                 header "Content-Type", "application/x-www-form-urlencoded"
             }
 
-            spotkickUserConfig.spotifyAccessToken = utilitiesService.handleResponse(resp).access_token
+            spotkickUserConfig.spotifyAccessToken = utilitiesService.handleResponse(resp, [method: "refreshTokenIfNecessary"]).access_token
             spotkickUserConfig.save(flush:true)
         }
     }
@@ -81,7 +83,7 @@ class UpstreamService {
             json name:"${name}",public:false
         }
 
-        def json = utilitiesService.handleResponse(resp)
+        def json = utilitiesService.handleResponse(resp, [method: "createPlaylist", playlistName: name])
         SpotkickUser currentUser = springSecurityService.getCurrentUser()
         currentUser.numberOfGeneratedPlaylists += 1
         Playlist playlist = new Playlist([name: name, href: json.href, uri: json.uri]).save()
@@ -101,7 +103,7 @@ class UpstreamService {
         }
 
         def result = []
-        utilitiesService.handleResponse(resp).tracks.eachWithIndex { track, idx ->
+        utilitiesService.handleResponse(resp, [method: "getArtistsTopTracks", artistId: artistId]).tracks.eachWithIndex { track, idx ->
             if(idx < numberOftracks) {
                 result << [
                         id  : track.id,
@@ -118,14 +120,16 @@ class UpstreamService {
 
         SpotkickUserConfig spotkickUserConfig = utilitiesService.getUserConfig()
         String spotifyAccessToken = spotkickUserConfig.getSpotifyAccessToken()
-        String encodedArtistName = URLEncoder.encode(artistName.replaceAll('"', '\\"').replaceAll("\\(.*?\\) ?", ""))
+        String encodedArtistName = URLEncoder.encode(utilitiesService.scrubArtistName(artistName))
 
-        def resp = rest.get("$grailsApplication.config.com.spotkick.spotify.url/search?q=$encodedArtistName&type=artist&market=GB&limit=1") {
-            header "Authorization", "Bearer ${spotifyAccessToken.toString()}"
-            header "Content-Type", "application/json"
-        }
+        def resp = utilitiesService.doWithRetry({
+            rest.get("$grailsApplication.config.com.spotkick.spotify.url/search?q=$encodedArtistName&type=artist&market=GB&limit=1") {
+                header "Authorization", "Bearer ${spotifyAccessToken.toString()}"
+                header "Content-Type", "application/json"
+            }
+        })
 
-        utilitiesService.handleResponse(resp)?.artists?.items
+        utilitiesService.handleResponse(resp, [method: "findArtistByName", artistName: artistName])?.artists?.items
     }
 
     def addTrackToPlaylist(trackUris, playlistId) {
@@ -136,11 +140,14 @@ class UpstreamService {
         String spotifyAccessToken = spotkickUserConfig.getSpotifyAccessToken()
         String encodedUris = trackUris.join(",")
 
-        def resp = rest.post("$grailsApplication.config.com.spotkick.spotify.url/users/$spotifyUserId/playlists/$playlistId/tracks?position=0&uris=$encodedUris") {
-            header "Authorization", "Bearer ${spotifyAccessToken.toString()}"
-            header "Accept", "application/json"
-        }
-        utilitiesService.handleResponse(resp)
+        def resp = utilitiesService.doWithRetry({
+            rest.post("$grailsApplication.config.com.spotkick.spotify.url/users/$spotifyUserId/playlists/$playlistId/tracks?position=0&uris=$encodedUris") {
+                header "Authorization", "Bearer ${spotifyAccessToken.toString()}"
+                header "Accept", "application/json"
+            }
+        })
+
+        utilitiesService.handleResponse(resp, [method: "addTrackToPlaylist", playlistId: playlistId])
     }
 
     def createSpotkickUserIfNecessary(Map values, String authority) {
