@@ -71,6 +71,7 @@ class UpstreamService {
     }
 
     def createPlaylist(String name) {
+        log.info("Creating Playlist with name '$name'.")
         refreshTokenIfNecessary()
 
         SpotkickUserConfig spotkickUserConfig = utilitiesService.getUserConfig()
@@ -133,6 +134,7 @@ class UpstreamService {
     }
 
     def addTrackToPlaylist(trackUris, playlistId) {
+        log.info("Batch adding Top Tracks to playlist.")
         refreshTokenIfNecessary()
 
         String spotifyUserId = getSpotifyUserId()

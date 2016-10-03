@@ -1,6 +1,8 @@
 package com.spotkick.thirdparty
 
 import com.spotkick.SpotkickUserConfig
+import com.spotkick.UtilitiesService
+import grails.core.GrailsApplication
 import grails.plugins.rest.client.RestBuilder
 import grails.transaction.Transactional
 import org.joda.time.DateTime
@@ -9,8 +11,8 @@ import org.joda.time.format.DateTimeFormatter
 
 @Transactional
 class DownstreamService {
-    def utilitiesService
-    def grailsApplication
+    UtilitiesService utilitiesService
+    GrailsApplication grailsApplication
     static final RestBuilder rest = new RestBuilder()
 
     def getConcerts(Map filters, int page=1) {

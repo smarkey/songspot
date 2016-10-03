@@ -1,12 +1,14 @@
 package com.spotkick.thirdparty
 
 import com.spotkick.SpotkickUserConfig
+import com.spotkick.UtilitiesService
+import grails.plugin.springsecurity.SpringSecurityService
 import grails.util.Environment
 
 class UpstreamController {
-    def utilitiesService
-    def upstreamService
-    def springSecurityService
+    UtilitiesService utilitiesService
+    UpstreamService upstreamService
+    SpringSecurityService springSecurityService
 
     def authorize() {
         log.info("Redirecting to Spotify Authentication.")
@@ -14,10 +16,10 @@ class UpstreamController {
         String authUrl = grailsApplication.config.com.spotkick.spotify.authUrl
         String clientId = grailsApplication.config.com.spotkick.spotify.clientId
         String redirectUri = grailsApplication.config.com.spotkick.spotify."${Environment.isDevelopmentMode() ? 'testCallback' : 'liveCallback'}"
-        String scopes = "user-read-email playlist-modify-private"
+        String scopes = URLEncoder.encode("user-read-email playlist-modify-private")
         redirect(url: "$authUrl?" +
                 "response_type=code&" +
-                "scope=${URLEncoder.encode(scopes)}&" +
+                "scope=$scopes&" +
                 "client_id=$clientId&" +
                 "redirect_uri=$redirectUri&" +
                 "state=NA&" +

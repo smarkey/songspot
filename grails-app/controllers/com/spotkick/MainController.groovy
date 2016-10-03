@@ -1,8 +1,11 @@
 package com.spotkick
 
+import com.spotkick.thirdparty.DownstreamService
+import com.spotkick.thirdparty.UpstreamService
+
 class MainController {
-    def downstreamService
-    def upstreamService
+    DownstreamService downstreamService
+    UpstreamService upstreamService
 
     def index() {
         render(view:"/index")
@@ -33,15 +36,25 @@ class MainController {
         List<String> uris = []
         List<String> missingArtists = []
 
+        log.info("Retrieving Artist ID and Top Tracks.")
         artists.each { artist ->
-            def spotifyArtistSearchResult = upstreamService.findArtistByName(artist)
+            def spotkickArtist = Artist.findByName(artist)
+            String artistId = null
 
-            if(!spotifyArtistSearchResult || spotifyArtistSearchResult?.size() == 0) {
-                missingArtists << artist
-                return
+            if(spotkickArtist) {
+                artistId = spotkickArtist.spotifyId
+            } else {
+                def spotifyArtistSearchResult = upstreamService.findArtistByName(artist)
+
+                if (!spotifyArtistSearchResult || spotifyArtistSearchResult?.size() == 0) {
+                    missingArtists << artist
+                    return
+                }
+
+                artistId = spotifyArtistSearchResult.first().id
+
+                new Artist([name: artist, spotifyId: artistId]).save()
             }
-
-            String artistId = spotifyArtistSearchResult.first().id
 
             def topTracks = upstreamService.getArtistsTopTracks(artistId, numberOfTracks)
 
@@ -69,14 +82,23 @@ class MainController {
                 int foundNothingForSplits = 0
 
                 splitArtists.each { splitMissingArtist ->
-                    def spotifyArtistSearchResult = upstreamService.findArtistByName(splitMissingArtist)
+                    def spotkickArtist = Artist.findByName(splitMissingArtist)
+                    String artistId = null
 
-                    if(!spotifyArtistSearchResult || spotifyArtistSearchResult?.size() == 0) {
-                        foundNothingForSplits++
-                        return
+                    if(spotkickArtist) {
+                        artistId = spotkickArtist.spotifyId
+                    } else {
+                        def spotifyArtistSearchResult = upstreamService.findArtistByName(splitMissingArtist)
+
+                        if(!spotifyArtistSearchResult || spotifyArtistSearchResult?.size() == 0) {
+                            foundNothingForSplits++
+                            return
+                        }
+
+                        artistId = spotifyArtistSearchResult.first().id
+
+                        new Artist([name: artist, spotifyId: artistId]).save()
                     }
-
-                    String artistId = spotifyArtistSearchResult.first().id
 
                     def topTracks = upstreamService.getArtistsTopTracks(artistId, numberOfTracks)
 
@@ -89,7 +111,7 @@ class MainController {
                     return
                 }
 
-                if(foundNothingForSplits == 0) {
+                if(foundNothingForSplits == splitArtists.size()) {
                     correctedMissingArtistsList << artist
                 }
             } else {
