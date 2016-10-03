@@ -17,19 +17,33 @@ class DownstreamService {
 
     def getConcerts(Map filters, int page=1) {
         def resp = null
-        def results = null
+        def results = []
 
         if(filters.containsKey("areaRestriction")) {
             String metroUrl = getMetroEventsUrl(filters.areaRestriction, filters, page)
+
             resp = rest.get(metroUrl)
-            results = resp.json.resultsPage.results.event
+            def resultsPage = resp.json.resultsPage
+            results << resultsPage.results.event
+
+            int totalPages = Math.ceil(resultsPage.totalEntries.toInteger()/resultsPage.perPage.toInteger()).toInteger()
+            (2..totalPages).each { pageNumber ->
+                results << rest.get(getMetroEventsUrl(filters.areaRestriction, filters, pageNumber)).json.resultsPage.results.event
+            }
         } else {
             String userUrl = getUserEventsUrl(page, filters.user)
+
             resp = rest.get(userUrl)
-            results = resp.json.resultsPage.results.calendarEntry*.event
+            def resultsPage = resp.json.resultsPage
+            results << resultsPage.results.calendarEntry*.event
+
+            int totalPages = Math.ceil(resultsPage.totalEntries.toInteger()/resultsPage.perPage.toInteger()).toInteger()
+            (2..totalPages).each { pageNumber ->
+                results << rest.get(getUserEventsUrl(page, filters.user)).json.resultsPage.results.calendarEntry*.event
+            }
         }
 
-        def formattedConcerts = formatConcertsData(results)
+        def formattedConcerts = formatConcertsData(results.flatten())
         return doFilters(formattedConcerts, filters)
     }
 
@@ -108,31 +122,33 @@ class DownstreamService {
     def formatConcertsData(results) {
         def data=[]
         results.each { event ->
-            def performances = []
-            event.performance.each { performance ->
-                performances << [
-                        id: performance.id,
+            if (event?.performance && event?.performance.size() > 0) {
+                def performances = []
+                event.performance.each { performance ->
+                    performances << [
+                        id  : performance.id,
                         name: performance.displayName
+                    ]
+                }
+
+                data << [
+                    id          : event.id,
+                    performances: [
+                        performances
+                    ],
+                    venue       : [
+                        id  : event.venue.id,
+                        name: event.venue.displayName
+                    ],
+                    location    : event.location,
+                    start       : [
+                        date: event.start.date
+                    ],
+                    url         : event.uri,
+                    popularity  : event.popularity,
+                    type        : event.type
                 ]
             }
-
-            data << [
-                    id: event.id,
-                    performances: [
-                            performances
-                    ],
-                    venue: [
-                            id: event.venue.id,
-                            name: event.venue.displayName
-                    ],
-                    location: event.location,
-                    start: [
-                            date: event.start.date
-                    ],
-                    url: event.uri,
-                    popularity: event.popularity,
-                    type: event.type
-            ]
         }
 
         data
